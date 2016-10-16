@@ -1,0 +1,19 @@
+{
+  "name": "trace",
+  "version": "0.1.0",
+  "description": "A visual programming language for Arduino-like platforms.",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RPI-Void-Star/trace.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/RPI-Void-Star/trace/issues"
+  },
+  "homepage": "https://github.com/RPI-Void-Star/trace#readme",
+  "dependencies": {
+    "fs-jetpack": "^0.9.2"
+  }
+}
