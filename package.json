@@ -4,8 +4,8 @@
   "description": "A visual programming language for Arduino-like platforms.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "node node_modules\\eslint\\bin\\eslint.js .",
+    "test": "echo \"Error: no test specified\" && exit 0",
+    "lint": "node node_modules/eslint/bin/eslint.js .",
     "start": "gulp start"
   },
   "repository": {
