@@ -3,12 +3,13 @@
 <html>
     <head>
         <title>Trace</title>
+        <link rel="shortcut icon" href="favicon.ico"></link>
         <link rel="stylesheet" href="css/main.css"></link>
     </head>
 
     <body>
         <header>
-            <a><img src="trace" /></a>
+            <a><img id="logo" src="img/trace.svg" /></a>
             <a><span class="center">New</span></a>
             <a><span class="center">Open</span></a>
             <a><span class="center">Save</span></a>
@@ -18,11 +19,11 @@
 
         <main>
             <canvas id="chart-canvas"></canvas>
-            <div id="chart-container" draggable=true></div>
+            <div id="chart-container"></div>
         </main>
 
         <aside id="block-bar" class="right center">
-            <div class="block" draggable="true" data-type="testBlock">
+            <div class="block template" draggable="true" data-type="testBlock">
                 <header>Test Block</header>
             </div>
         </aside>
