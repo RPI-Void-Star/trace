@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Trace</title>
+        <link rel="stylesheet" href="css/main.css"></link>
+    </head>
+
+    <body>
+        <header>
+            <a><img src="trace" /></a>
+            <a><span class="center">New</span></a>
+            <a><span class="center">Open</span></a>
+            <a><span class="center">Save</span></a>
+            <a><span class="center">Upload</span></a>
+            <a><span class="center">Compile</span></a>
+        </header>
+
+        <main>
+            <canvas id="chart-canvas"></canvas>
+            <div id="chart-container" draggable=true></div>
+        </main>
+
+        <aside id="block-bar" class="right center">
+            <div class="block" draggable="true" data-type="testBlock">
+                <header>Test Block</header>
+            </div>
+        </aside>
+    </body>
+    <script type="text/javascript" src="js/ui.js"></script>
+</html>
