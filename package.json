@@ -1,0 +1,47 @@
+{
+  "name": "trace",
+  "version": "0.1.0",
+  "description": "A visual programming language for Arduino-like platforms.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 0",
+    "lint": "node node_modules/eslint/bin/eslint.js .",
+    "start": "gulp start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RPI-Void-Star/trace.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/RPI-Void-Star/trace/issues"
+  },
+  "homepage": "https://github.com/RPI-Void-Star/trace#readme",
+  "devDependencies": {
+    "electron": "^1.4.3",
+    "electron-builder": "^7.13.0",
+    "eslint": "^3.8.0",
+    "eslint-config-airbnb": "^12.0.0",
+    "eslint-config-airbnb-base": "^8.0.0",
+    "eslint-plugin-import": "^1.16.0",
+    "eslint-plugin-jsx-a11y": "^2.2.2",
+    "eslint-plugin-react": "^6.3.0",
+    "fs-jetpack": "^0.9.2",
+    "gulp": "^3.9.1",
+    "gulp-batch": "^1.0.5",
+    "gulp-less": "^3.1.0",
+    "gulp-plumber": "^1.1.0",
+    "gulp-watch": "^4.3.10",
+    "rollup": "^0.36.3",
+    "yargs": "^6.1.1"
+  },
+  "peerDependencies": {
+    "eslint": "^3.8.0",
+    "eslint-plugin-import": "^1.16.0",
+    "eslint-config-airbnb": "^12.0.0",
+    "eslint-config-airbnb-base": "^8.0.0",
+    "eslint-plugin-jsx-a11y": "^2.2.2",
+    "eslint-plugin-react": "^6.3.0"
+  }
+}
