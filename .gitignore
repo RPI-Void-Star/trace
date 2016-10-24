@@ -38,3 +38,6 @@ Thumbs.db
 /dist
 
 /coverage
+=======
+# Any swap file
+*.sw?

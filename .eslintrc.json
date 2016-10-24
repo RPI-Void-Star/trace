@@ -4,7 +4,13 @@
     "plugins": [
         "import"
     ],
+    "globals": {
+        "document": true,
+        "window": true
+    },
     "rules": {
-        "import/no-extraneous-dependencies": ["error", { "devDependencies": ["!./tasks"] }]
+        "import/no-extraneous-dependencies": ["error", { "devDependencies": ["!./tasks"] }],
+        "no-param-reassign": ["error", {"props": false}],
+        "no-plusplus": [0]
     }
 }
