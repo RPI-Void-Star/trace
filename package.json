@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/RPI-Void-Star/trace#readme",
   "devDependencies": {
-    "chai": "^4.0.0-canary.1",
+    "chai": "^3.5.0",
     "electron": "^1.4.3",
     "electron-builder": "^7.13.0",
     "eslint": "^3.8.0",
@@ -44,6 +44,7 @@
     "yargs": "^6.1.1"
   },
   "peerDependencies": {
+    "chai": "^3.5.0",    
     "eslint": "^3.8.0",
     "eslint-plugin-import": "^1.16.0",
     "eslint-config-airbnb": "^12.0.0",
