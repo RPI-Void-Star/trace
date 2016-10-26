@@ -15,6 +15,7 @@ class Canvas {
     this.h = 0;
     this.blocks = [];
     this.updateCanvas();
+    this.activeBlock = undefined;
   }
 
   updateCanvas() {
@@ -51,9 +52,16 @@ class Canvas {
   }
 
   addBlock(x, y) {
-    const newBlock = new Block(x, y);
-    this.container.appendChild(newBlock.element);
-    this.blocks.push(newBlock);
+    const block = new Block(x, y);
+    this.container.appendChild(block.element);
+    this.blocks.push(block);
+    block.element.addEventListener('click', () => {
+      if (this.activeBlock) {
+        this.activeBlock.toggleHighlight();
+      }
+      block.toggleHighlight();
+      this.activeBlock = block;
+    }, false);
   }
 
 }

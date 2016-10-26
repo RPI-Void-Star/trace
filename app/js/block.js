@@ -73,6 +73,10 @@ class Block {
     this.element.addEventListener('dragstart', Block.dragStart);
   }
 
+  toggleHighlight() {
+    this.element.classList.toggle('active');
+  }
+
 }
 
 module.exports.Block = Block;
