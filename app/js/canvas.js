@@ -15,9 +15,6 @@ class Canvas {
     this.h = 0;
     this.blocks = [];
     this.updateCanvas();
-    window.onresize = this.updateCanvas;
-    this.container.addEventListener('drop', e => Canvas.blockDropped(this, e), this);
-    this.container.addEventListener('dragover', Canvas.dragOver, false);
   }
 
   updateCanvas() {
@@ -51,30 +48,14 @@ class Canvas {
     }
 
     ctx.stroke();
-    // ctx.fillRect(0, (h - 4) / 2, w, 4);
+  }
+
+  addBlock(x, y) {
+    const newBlock = new Block(x, y);
+    this.container.appendChild(newBlock.element);
+    this.blocks.push(newBlock);
   }
 
 }
-
-Canvas.blockDropped = (that, event) => {
-  // Detects when blocks are dropped onto the canvas
-  //  and adds a copy of the block.
-  event.preventDefault();
-  event.stopPropagation();
-  // move dragged elem to the selected drop target
-  if (that.container === event.target) {
-    const newBlock = new Block(event.layerX, event.layerY);
-    that.container.appendChild(newBlock.element);
-    that.blocks.push(newBlock);
-  }
-  return false;
-};
-
-Canvas.dragOver = (event) => {
-  event.preventDefault();
-  event.stopPropagation();
-  return false;
-};
-
 
 module.exports = Canvas;
