@@ -1,0 +1,42 @@
+{
+    "blocks" : {
+        "0" : {
+            "next" : 1,
+            "type" : "start"
+        },
+        "1" : {
+            "next": 2,
+            "type": "read",
+            "attributes" : {
+                "pin" : 3,
+                "var": "foo"
+            }
+        },
+        "2" : {
+            "next" : 2,
+            "type" : "read",
+            "attributes" : {
+                "condition" : "foo",
+                "children" : {
+                    "true" : 3,
+                    "false" : null
+                }
+            }
+        },
+        "3" : {
+            "next" : null,
+            "type" : "blink",
+            "attributes" : {
+                "pin" : 13,
+                "time": 1
+            }
+        },
+        "4" : {
+            "next" : null,
+            "type" : "delay",
+            "attributes" : {
+                "time" : 1
+            }
+        }
+    }
+}
