@@ -71,6 +71,13 @@ class Block {
                         y - TemplateBlock.draggedOffset.y);
     this.element.classList.remove('template');
     this.element.addEventListener('dragstart', Block.dragStart);
+
+    this.moving = false
+    this.moveListener = undefined
+    this.element.addEventListener('click', e => {
+      if (this.moving){ this.disableMoving() }
+      else if (this.element.classList.contains('active')){ this.enableMoving(e); }
+    }) 
   }
 
   toggleHighlight() {
@@ -79,6 +86,36 @@ class Block {
 
   removeHighlight(){
     this.element.classList.remove('active');
+  }
+
+/*
+ * Enables blocks to be moved on the canvas.
+ */
+  enableMoving(e){
+    // Don't allow another listener to be added if block is already moving.
+    if (!this.moving){
+      const origin = { x: e.clientX, y: e.clientY }
+  
+      const newX = (e) => Number(this.element.style.left.replace("px", "")) + e.clientX - origin.x
+      const newY = (e) => Number(this.element.style.top.replace("px", "")) + e.clientY - origin.y
+  
+      this.moveListener = e => {
+          setPositionToCoords(this.element, newX(e), newY(e)); 
+          origin.x = e.clientX;
+          origin.y = e.clientY;
+      }
+
+      this.element.addEventListener('mousemove', this.moveListener)
+      this.moving = true
+    } else {
+      console.log("Attempted to move block that was already moving: " + JSON.stringify(this))
+    }
+  }
+
+  disableMoving(){
+    this.element.removeEventListener('mousemove', this.moveListener)
+    this.moveListener = undefined
+    this.moving = false
   }
 
 }
