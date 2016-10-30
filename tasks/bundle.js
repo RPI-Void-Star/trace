@@ -5,10 +5,10 @@ const appManifest = require('../app/package.json');
 
 
 const nodeBuiltInModules = ['assert', 'buffer', 'child_process', 'cluster',
-    'console', 'constants', 'crypto', 'dgram', 'dns', 'domain', 'events',
-    'fs', 'http', 'https', 'module', 'net', 'os', 'path', 'process', 'punycode',
-    'querystring', 'readline', 'repl', 'stream', 'string_decoder', 'timers',
-    'tls', 'tty', 'url', 'util', 'v8', 'vm', 'zlib'];
+  'console', 'constants', 'crypto', 'dgram', 'dns', 'domain', 'events',
+  'fs', 'http', 'https', 'module', 'net', 'os', 'path', 'process', 'punycode',
+  'querystring', 'readline', 'repl', 'stream', 'string_decoder', 'timers',
+  'tls', 'tty', 'url', 'util', 'v8', 'vm', 'zlib'];
 
 const electronBuiltInModules = ['electron'];
 
