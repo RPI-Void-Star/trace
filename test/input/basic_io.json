@@ -14,7 +14,7 @@
         },
         "2" : {
             "next" : 2,
-            "type" : "read",
+            "type" : "conditional",
             "attributes" : {
                 "condition" : "foo",
                 "children" : {
@@ -24,7 +24,7 @@
             }
         },
         "3" : {
-            "next" : null,
+            "next" : 4,
             "type" : "blink",
             "attributes" : {
                 "pin" : 13,
