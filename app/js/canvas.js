@@ -55,13 +55,19 @@ class Canvas {
     const block = new Block(x, y);
     this.container.appendChild(block.element);
     this.blocks.push(block);
-    block.element.addEventListener('click', () => {
+    block.element.addEventListener('click', e => {
       if (this.activeBlock) {
         this.activeBlock.toggleHighlight();
       }
       block.toggleHighlight();
       this.activeBlock = block;
+      e.stopPropagation();
     }, false);
+  }
+
+  clearActiveBlock(){
+    this.blocks.forEach( block => block.removeHighlight() )
+    this.activeBlock = undefined;
   }
 
 }

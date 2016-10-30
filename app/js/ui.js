@@ -12,6 +12,7 @@ class Controller {
   constructor() {
     this.canvas = undefined;
     this.templateBlocks = [];
+    
   }
 
   initCanvas() {
@@ -35,6 +36,9 @@ class Controller {
       event.stopPropagation();
       return false;
     }, false);
+
+    document.getElementById('chart-container').addEventListener('click',
+      this.canvas.clearActiveBlock.bind(this.canvas), false);
   }
 
   initTemplateBlocks() {
@@ -48,6 +52,6 @@ class Controller {
 }
 
 
-const controller = new Controller();
+window.controller = new Controller();
 controller.initCanvas();
 controller.initTemplateBlocks();
