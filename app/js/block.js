@@ -72,6 +72,8 @@ class Block {
       throw new TypeError('Cannot construct Block instances directly');
     }
     this.uid = Block.uid++;
+    this.loc = { x, y };
+    this.next = null;
     this.element = TemplateBlock.dragged.cloneNode(true);
     setPositionToCoords(this.element, x - TemplateBlock.draggedOffset.x,
                         y - TemplateBlock.draggedOffset.y);
@@ -97,6 +99,13 @@ class Block {
     throw new TypeError(`Block ${this.uid}: Not implemented`);
   }
 
+  /**
+   * @virtual
+   */
+  toJSON() {
+    throw new TypeError(`Block ${this.uid}: Not implemented`);
+  }
+
 }
 
 module.exports.Block = Block;
@@ -116,9 +125,19 @@ class LoopBlock extends Block {
 
   constructor(x, y) {
     super(x, y);
-    this.next = null;
     this.children = [];
     this.variable = null;
+  }
+
+  toJSON() {
+    return JSON.stringify({
+      next: this.next,
+      type: 'loop',
+      loc: this.loc,
+      attributes: {
+        children: this.children,
+      },
+    });
   }
 
 }
@@ -134,6 +153,21 @@ class ConditionalBlock extends Block {
     this.onFalse = null;
   }
 
+  toJSON() {
+    return JSON.stringify({
+      next: this.next,
+      type: 'conditional',
+      loc: this.loc,
+      attributes: {
+        condition: this.variable,
+        children: {
+          true: this.onTrue,
+          false: this.onFalse,
+        },
+      },
+    });
+  }
+
 }
 module.exports.ConditionalBlock = ConditionalBlock;
 
@@ -142,8 +176,18 @@ class VariableBlock extends Block {
 
   constructor(x, y) {
     super(x, y);
-    this.next = null;
     this.value = null;
+  }
+
+  toJSON() {
+    return JSON.stringify({
+      next: this.next,
+      type: 'variable',
+      loc: this.loc,
+      attributes: {
+        value: this.value,
+      },
+    });
   }
 
 }
