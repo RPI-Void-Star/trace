@@ -45,6 +45,7 @@ body > aside {
     display: block;
     height: calc( 100vh - 50px );
     float: left;
+    overflow: scroll;
 }
 
 body > main {
@@ -85,7 +86,6 @@ ul li {
 }
 
 .block {
-    display: inline-block;
     width: 200px;
     height: 80px;
     background-color: #eee;
@@ -93,12 +93,14 @@ ul li {
     border-bottom: 5px solid;
     box-shadow: 0px 0px 15px #777;
     overflow: hidden;
-    margin: 5px;
+    margin: 10px auto;
     cursor: move;
+    user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;
     -ms-user-select: none;
 }
+
 .block header {
     background-color: #fff;
     color: #333;        

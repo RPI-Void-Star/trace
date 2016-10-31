@@ -3,7 +3,6 @@
 //
 // Manages canvas events for the chart.
 //
-const Block = require('./block.js').Block;
 
 
 class Canvas {
@@ -51,8 +50,7 @@ class Canvas {
     ctx.stroke();
   }
 
-  addBlock(x, y) {
-    const block = new Block(x, y);
+  addBlock(block) {
     this.container.appendChild(block.element);
     this.blocks.push(block);
     block.element.addEventListener('click', () => {

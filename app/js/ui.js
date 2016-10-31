@@ -3,7 +3,7 @@
 //
 // Handles various ui based calls and events.
 //
-const TemplateBlock = require('./block.js').TemplateBlock;
+const blocks = require('./block.js');
 const Canvas = require('./canvas.js');
 
 
@@ -25,7 +25,24 @@ class Controller {
       event.stopPropagation();
       // move dragged elem to the selected drop target
       if (this.canvas.container === event.target) {
-        this.canvas.addBlock(event.layerX, event.layerY);
+        const x = event.layerX;
+        const y = event.layerY;
+        const blockType = blocks.TemplateBlock.dragged.getAttribute('data-type');
+        let block;
+        switch (blockType) {
+          case 'Loop':
+            block = new blocks.LoopBlock(x, y);
+            break;
+          case 'Conditional':
+            block = new blocks.ConditionalBlock(x, y);
+            break;
+          case 'Variable':
+            block = new blocks.VariableBlock(x, y);
+            break;
+          default:
+            throw new TypeError('Unrecognized block type');
+        }
+        this.canvas.addBlock(block);
       }
       return false;
     }, false);
@@ -38,10 +55,10 @@ class Controller {
   }
 
   initTemplateBlocks() {
-    const blocks = document.querySelectorAll('.block.template');
-    for (let i = 0; i < blocks.length; i++) {
-      const block = blocks[i];
-      this.templateBlocks.push(new TemplateBlock(block));
+    const templateBlocks = document.querySelectorAll('.block.template');
+    for (let i = 0; i < templateBlocks.length; i++) {
+      const block = templateBlocks[i];
+      this.templateBlocks.push(new blocks.TemplateBlock(block));
     }
   }
 

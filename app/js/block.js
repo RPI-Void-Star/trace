@@ -62,9 +62,15 @@ const setPositionToCoords = (node, x, y) => {
 };
 
 
+/**
+ * @abstract
+ */
 class Block {
 
   constructor(x, y) {
+    if (new.target === Block) {
+      throw new TypeError('Cannot construct Block instances directly');
+    }
     this.uid = Block.uid++;
     this.element = TemplateBlock.dragged.cloneNode(true);
     setPositionToCoords(this.element, x - TemplateBlock.draggedOffset.x,
@@ -75,6 +81,20 @@ class Block {
 
   toggleHighlight() {
     this.element.classList.toggle('active');
+  }
+
+  /**
+   * @virtual
+   */
+  getParamsMeta() {
+    throw new TypeError(`Block ${this.uid}: Not implemented`);
+  }
+
+  /**
+   * @virtual
+   */
+  setParams() {
+    throw new TypeError(`Block ${this.uid}: Not implemented`);
   }
 
 }
@@ -90,3 +110,41 @@ Block.dragStart = (event) => {
   event.preventDefault();
   // Add ability to link blocks from here later.
 };
+
+
+class LoopBlock extends Block {
+
+  constructor(x, y) {
+    super(x, y);
+    this.next = null;
+    this.children = [];
+    this.variable = null;
+  }
+
+}
+module.exports.LoopBlock = LoopBlock;
+
+
+class ConditionalBlock extends Block {
+
+  constructor(x, y) {
+    super(x, y);
+    this.variable = null;
+    this.onTrue = null;
+    this.onFalse = null;
+  }
+
+}
+module.exports.ConditionalBlock = ConditionalBlock;
+
+
+class VariableBlock extends Block {
+
+  constructor(x, y) {
+    super(x, y);
+    this.next = null;
+    this.value = null;
+  }
+
+}
+module.exports.VariableBlock = VariableBlock;
