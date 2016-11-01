@@ -81,7 +81,7 @@ class Block {
     this.element.addEventListener('dragstart', Block.dragStart);
   }
 
-  toggleHighlight() {
+  toggleSelect() {
     this.element.classList.toggle('active');
   }
 
@@ -129,6 +129,10 @@ class LoopBlock extends Block {
     this.variable = null;
   }
 
+  getParamsMeta() {
+    return `Block ${this.uid}: loop loop!`;
+  }
+
   toJSON() {
     return JSON.stringify({
       next: this.next,
@@ -151,6 +155,10 @@ class ConditionalBlock extends Block {
     this.variable = null;
     this.onTrue = null;
     this.onFalse = null;
+  }
+
+  getParamsMeta() {
+    return `Block ${this.uid}: conditionaaal`;
   }
 
   toJSON() {
@@ -177,6 +185,10 @@ class VariableBlock extends Block {
   constructor(x, y) {
     super(x, y);
     this.value = null;
+  }
+
+  getParamsMeta() {
+    return `Block ${this.uid}: variable?!`;
   }
 
   toJSON() {

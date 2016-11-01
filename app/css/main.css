@@ -50,8 +50,10 @@ body > aside {
 
 body > main {
     position: relative;
-    width: calc( 100vw - 300px );
+    width: calc( 100vw - 300px - 55px );
     overflow: scroll;
+    -webkit-transition: width 1s;
+    transition: width 1s;
 }
 body > aside {
     width: 300px;
@@ -61,7 +63,27 @@ body > aside {
     vertical-align: middle;
 }
 
-.right { float: right }
+#config-bar {
+    width: 55px;
+    -webkit-transition: width 1s;
+    transition: width 1s;
+    overflow: hidden;
+}
+
+#config-bar header {
+    font-size: 32px;
+}
+#config-bar header:hover {
+    cursor: pointer;
+}
+
+#config-bar content {
+    -webskit-transition: opacity 1s;
+    transition: opacity 1s;
+}
+
+.right { float: right; }
+.left { float: left; }
 .center:after {
     content: "";
     vertical-align: middle;

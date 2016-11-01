@@ -53,13 +53,6 @@ class Canvas {
   addBlock(block) {
     this.container.appendChild(block.element);
     this.blocks.push(block);
-    block.element.addEventListener('click', () => {
-      if (this.activeBlock) {
-        this.activeBlock.toggleHighlight();
-      }
-      block.toggleHighlight();
-      this.activeBlock = block;
-    }, false);
   }
 
 }
