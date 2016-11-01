@@ -3,7 +3,7 @@
 //
 // Handles various ui based calls and events.
 //
-const TemplateBlock = require('./block.js').TemplateBlock;
+const blocks = require('./block.js');
 const Canvas = require('./canvas.js');
 
 
@@ -12,6 +12,9 @@ class Controller {
   constructor() {
     this.canvas = undefined;
     this.templateBlocks = [];
+    this.activeBlock = undefined;
+    document.getElementById('config-bar-header')
+      .addEventListener('click', this.toggleConfigBar, false);
   }
 
   initCanvas() {
@@ -25,7 +28,10 @@ class Controller {
       event.stopPropagation();
       // move dragged elem to the selected drop target
       if (this.canvas.container === event.target) {
-        this.canvas.addBlock(event.layerX, event.layerY);
+        const x = event.layerX;
+        const y = event.layerY;
+        const blockType = blocks.TemplateBlock.dragged.getAttribute('data-type');
+        this.createBlock(blockType, x, y);
       }
       return false;
     }, false);
@@ -38,10 +44,60 @@ class Controller {
   }
 
   initTemplateBlocks() {
-    const blocks = document.querySelectorAll('.block.template');
-    for (let i = 0; i < blocks.length; i++) {
-      const block = blocks[i];
-      this.templateBlocks.push(new TemplateBlock(block));
+    const templateBlocks = document.querySelectorAll('.block.template');
+    for (let i = 0; i < templateBlocks.length; i++) {
+      const block = templateBlocks[i];
+      this.templateBlocks.push(new blocks.TemplateBlock(block));
+    }
+  }
+
+  createBlock(blockType, x, y) {
+    let block;
+    switch (blockType) {
+      case 'Loop':
+        block = new blocks.LoopBlock(x, y);
+        break;
+      case 'Conditional':
+        block = new blocks.ConditionalBlock(x, y);
+        break;
+      case 'Variable':
+        block = new blocks.VariableBlock(x, y);
+        break;
+      default:
+        throw new TypeError('Unrecognized block type');
+    }
+    this.canvas.addBlock(block);
+    const selectBlock = () => {
+      if (this.activeBlock) {
+        this.activeBlock.toggleSelect();
+      }
+      block.toggleSelect();
+      this.activeBlock = block;
+      document.getElementById('config-bar')
+        .getElementsByTagName('content')[0]
+        .innerHTML = this.activeBlock.getParamsMeta();
+    };
+    block.element.addEventListener('click', selectBlock, false);
+    this.configBarActive = false;
+    this.toggleConfigBar();
+    selectBlock();
+  }
+
+  toggleConfigBar() {
+    const configBar = document.getElementById('config-bar');
+    const configContent = document.getElementById('config-bar').getElementsByTagName('content')[0];
+    const mainWindow = document.getElementsByTagName('main')[0];
+    const viewportWidth = document.documentElement.clientWidth;
+    if (this.configBarActive) {
+      configBar.style.width = '55px';
+      mainWindow.style.width = `${viewportWidth - 300 - 55}px`;
+      configContent.style.opacity = 0;
+      this.configBarActive = false;
+    } else {
+      configBar.style.width = '300px';
+      mainWindow.style.width = `${viewportWidth - 300 - 300}px`;
+      configContent.style.opacity = 1;
+      this.configBarActive = true;
     }
   }
 

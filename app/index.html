@@ -17,14 +17,29 @@
             <a><span class="center">Compile</span></a>
         </header>
 
+        <aside id="config-bar" class="left center">
+            <header id="config-bar-header">
+                &#9776;
+            </header>
+            <content>
+
+            </content>
+        </aside>
+
         <main>
             <canvas id="chart-canvas"></canvas>
             <div id="chart-container"></div>
         </main>
 
         <aside id="block-bar" class="right center">
-            <div class="block template" draggable="true" data-type="testBlock">
-                <header>Test Block</header>
+            <div class="block template" draggable="true" data-type="Loop">
+                <header>Loop</header>
+            </div>
+            <div class="block template" draggable="true" data-type="Conditional">
+                <header>Conditional</header>
+            </div>
+            <div class="block template" draggable="true" data-type="Variable">
+                <header>Variable</header>
             </div>
         </aside>
     </body>

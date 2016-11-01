@@ -62,10 +62,18 @@ const setPositionToCoords = (node, x, y) => {
 };
 
 
+/**
+ * @abstract
+ */
 class Block {
 
   constructor(x, y) {
+    if (new.target === Block) {
+      throw new TypeError('Cannot construct Block instances directly');
+    }
     this.uid = Block.uid++;
+    this.loc = { x, y };
+    this.next = null;
     this.element = TemplateBlock.dragged.cloneNode(true);
     setPositionToCoords(this.element, x - TemplateBlock.draggedOffset.x,
                         y - TemplateBlock.draggedOffset.y);
@@ -73,8 +81,29 @@ class Block {
     this.element.addEventListener('dragstart', Block.dragStart);
   }
 
-  toggleHighlight() {
+  toggleSelect() {
     this.element.classList.toggle('active');
+  }
+
+  /**
+   * @virtual
+   */
+  getParamsMeta() {
+    throw new TypeError(`Block ${this.uid}: Not implemented`);
+  }
+
+  /**
+   * @virtual
+   */
+  setParams() {
+    throw new TypeError(`Block ${this.uid}: Not implemented`);
+  }
+
+  /**
+   * @virtual
+   */
+  toJSON() {
+    throw new TypeError(`Block ${this.uid}: Not implemented`);
   }
 
 }
@@ -90,3 +119,88 @@ Block.dragStart = (event) => {
   event.preventDefault();
   // Add ability to link blocks from here later.
 };
+
+
+class LoopBlock extends Block {
+
+  constructor(x, y) {
+    super(x, y);
+    this.children = [];
+    this.variable = null;
+  }
+
+  getParamsMeta() {
+    return `Block ${this.uid}: loop loop!`;
+  }
+
+  toJSON() {
+    return JSON.stringify({
+      next: this.next,
+      type: 'loop',
+      loc: this.loc,
+      attributes: {
+        children: this.children,
+      },
+    });
+  }
+
+}
+module.exports.LoopBlock = LoopBlock;
+
+
+class ConditionalBlock extends Block {
+
+  constructor(x, y) {
+    super(x, y);
+    this.variable = null;
+    this.onTrue = null;
+    this.onFalse = null;
+  }
+
+  getParamsMeta() {
+    return `Block ${this.uid}: conditionaaal`;
+  }
+
+  toJSON() {
+    return JSON.stringify({
+      next: this.next,
+      type: 'conditional',
+      loc: this.loc,
+      attributes: {
+        condition: this.variable,
+        children: {
+          true: this.onTrue,
+          false: this.onFalse,
+        },
+      },
+    });
+  }
+
+}
+module.exports.ConditionalBlock = ConditionalBlock;
+
+
+class VariableBlock extends Block {
+
+  constructor(x, y) {
+    super(x, y);
+    this.value = null;
+  }
+
+  getParamsMeta() {
+    return `Block ${this.uid}: variable?!`;
+  }
+
+  toJSON() {
+    return JSON.stringify({
+      next: this.next,
+      type: 'variable',
+      loc: this.loc,
+      attributes: {
+        value: this.value,
+      },
+    });
+  }
+
+}
+module.exports.VariableBlock = VariableBlock;
