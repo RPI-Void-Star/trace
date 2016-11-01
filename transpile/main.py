@@ -10,28 +10,73 @@ import classes
 import json
 
 def load(blocks, index):
-    returnVal = classes.Block()
-    returnVal.id = index
-    print(blocks[index])
+    loop = False
+    conditional = False
+    variable = False
 
+    # Check type
+    if 'type' in blocks[index]:
+        if blocks[index]['type'] == 'loop':
+            loop = True
+            returnVal = classes.LoopBlock()
+        elif blocks[index]['type'] == 'conditional':
+            conditional = True
+            returnVal = classes.ConditionalBlock()
+        elif blocks[index]['type'] == 'variable':
+            variable = True
+            returnVal = classes.VariableBlock()
+        else:
+            returnVal = classes.Block()
+            returnVal.type = blocks[index]['type']
+    else:
+        print("ERROR: Block", index, "missing 'type'")
+        exit(1)
+
+    # Set index
+    returnVal.id = index
+
+    # Check next
     if 'next' in blocks[index]:
-        print("Has next =", blocks[index]['next'])
         returnVal.next = blocks[index]['next']
     else:
         print("ERROR: Block", index, "missing 'next'")
         exit(1)
 
-    if 'type' in blocks[index]:
-        print("Has type =", blocks[index]['type'])
-        returnVal.type = blocks[index]['type']
-    else:
-        print("ERROR: Block", index, "missing 'type'")
+    # Check attributes
+    if 'attributes' in blocks[index]:
+        returnVal.attributes = blocks[index]['attributes']
+        if conditional == True:
+            if 'condition' in blocks[index]['attributes']:
+                returnVal.condition = blocks[index]['attributes']['condition']
+            else:
+                print("ERROR: Conditional block", index, "missing attribute 'condition'")
+                print("Conditional blocks require attributes: 'condition', 'children: true', 'children: false'")
+                exit(1)
+
+            if 'children' in blocks[index]['attributes']:
+                if 'true' in blocks[index]['attributes']['children']:
+                    returnVal.true = blocks[index]['attributes']['children']['true']
+                else:
+                    print("ERROR: Conditional block", index, "missing attribute: 'true'")
+                    print("Conditional blocks require attributes: 'condition', 'children: true', 'children: false'")
+                    exit(1)
+
+                if 'false' in blocks[index]['attributes']['children']:
+                    returnVal.false = blocks[index]['attributes']['children']['false']
+                else:
+                    print("ERROR: Conditional block", index, "missing attribute: 'false'")
+                    print("Conditional blocks require attributes: 'condition', 'children: true', 'children: false'")
+                    exit(1)
+            else:
+                print("ERROR: Conditional block", index, "missing attributes: 'children: true', 'children: false'")
+                print("Conditional blocks require attributes: 'condition', 'children: true', 'children: false'")
+                exit(1)
+
+    elif conditional == True:
+        print("ERROR: Block", index, "missing 'attributes'")
+        print("Conditional blocks require attributes: 'condition', 'children: true', 'children: false'")
         exit(1)
 
-    if 'attributes' in blocks[index]:
-        print("Has attributes =", blocks[index]['attributes'])
-        returnVal.attributes = blocks[index]['attributes']
-    print("---")
     return returnVal
 
 if __name__ == "__main__":
