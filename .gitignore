@@ -42,5 +42,9 @@ Thumbs.db
 # Any swap file
 *.sw?
 
+# Python extras
+__pycache__
+*.pyc
+
 # Personal config files
 .ycm_extra_conf.py
