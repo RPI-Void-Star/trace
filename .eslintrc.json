@@ -2,7 +2,8 @@
     "extends": "airbnb/base",
     "installedESLint": true,
     "plugins": [
-        "import"
+        "import",
+        "mocha"
     ],
     "globals": {
         "document": true,

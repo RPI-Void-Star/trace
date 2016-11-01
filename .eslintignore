@@ -1,2 +1,4 @@
 app/*
 !app/js
+karma.conf.js
+app/js/index.js
