@@ -85,29 +85,16 @@ class Controller {
     };
 
     block.element.addEventListener('click', selectBlock, false);
-    this.configBarActive = false;
-    this.toggleConfigBar();
+
+    // If config bar is closed open it.
+    if (!this.configBarActive){ this.toggleConfigBar() }
     selectBlock();
   }
 
   toggleConfigBar() {
-    const configBar = document.getElementById('config-bar');
-    const configContent = document.getElementById('config-bar').getElementsByTagName('content')[0];
-    const mainWindow = document.getElementsByTagName('main')[0];
-    const viewportWidth = document.documentElement.clientWidth;
-    if (this.configBarActive) {
-      configBar.style.width = '55px';
-      mainWindow.style.width = `${viewportWidth - 300 - 55}px`;
-      configContent.style.opacity = 0;
-      this.configBarActive = false;
-    } else {
-      configBar.style.width = '300px';
-      mainWindow.style.width = `${viewportWidth - 300 - 300}px`;
-      configContent.style.opacity = 1;
-      this.configBarActive = true;
-    }
+    this.configBarActive = !this.configBarActive
+    document.body.classList.toggle('show-config-bar')
   }
-
 }
 
 
