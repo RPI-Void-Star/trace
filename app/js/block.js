@@ -33,7 +33,7 @@ TemplateBlock.dragStart = (event) => {
   TemplateBlock.draggedOffset.y = event.layerY;
   // make it half transparent
   event.dataTransfer.effectAllowed = 'copy';
-  event.dataTransfer.setData('text/html', this.innerHTML);
+  event.dataTransfer.setData('text/html', event.target.outerHTML);
 };
 
 /**
@@ -89,6 +89,13 @@ class Block {
     this.element.classList.remove('active');
   }
 
+  updatePosition(x, y) {
+    this.element.style.position = 'absolute';
+    this.element.style.top = `${y}px`;
+    this.element.style.left = `${x}px`;
+    this.loc = { x, y };
+  }
+
   /**
    * @virtual
    */
@@ -138,14 +145,14 @@ class LoopBlock extends Block {
   }
 
   toJSON() {
-    return JSON.stringify({
+    return {
       next: this.next,
       type: 'loop',
       loc: this.loc,
       attributes: {
         children: this.children,
       },
-    });
+    };
   }
 
 }
@@ -166,7 +173,7 @@ class ConditionalBlock extends Block {
   }
 
   toJSON() {
-    return JSON.stringify({
+    return {
       next: this.next,
       type: 'conditional',
       loc: this.loc,
@@ -177,7 +184,7 @@ class ConditionalBlock extends Block {
           false: this.onFalse,
         },
       },
-    });
+    };
   }
 
 }
@@ -196,14 +203,14 @@ class VariableBlock extends Block {
   }
 
   toJSON() {
-    return JSON.stringify({
+    return {
       next: this.next,
       type: 'variable',
       loc: this.loc,
       attributes: {
         value: this.value,
       },
-    });
+    };
   }
 
 }

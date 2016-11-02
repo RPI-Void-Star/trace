@@ -5,6 +5,8 @@
 //
 const blocks = require('./block.js');
 const Canvas = require('./canvas.js');
+const { dialog } = require('electron').remote;
+const { ipcRenderer } = require('electron');
 
 /*
  * Helper functions
@@ -21,12 +23,17 @@ const setPositionToCoords = (node, x, y) => {
  * Controller Class
  */
 
+/*
+ * Controller Class
+ */
+
 class Controller {
 
   constructor() {
     this.canvas = undefined;
     this.templateBlocks = [];
     this.activeBlock = undefined;
+    this.fileSavePath = undefined;
     // This is a wrapper to protect against changing this context.
     //   Needs to be a variable to allow for proper event listener removal.
     //   Needs to be an instance variable since the enableMoving calls needs the instance.
@@ -34,6 +41,11 @@ class Controller {
     // Need a wrapper for this guy too.
     document.getElementById('config-bar-header')
       .addEventListener('click', () => this.toggleConfigBar(), false);
+
+    // Project management buttons
+    document.getElementById('new-project').addEventListener('click', () => this.newProject(), false);
+    document.getElementById('open-project').addEventListener('click', () => this.openProject(), false);
+    document.getElementById('save-project').addEventListener('click', () => this.saveProject(), false);
   }
 
   initCanvas() {
@@ -87,25 +99,26 @@ class Controller {
   createBlock(blockType, x, y) {
     let block;
     switch (blockType) {
-      case 'Loop':
+      case 'loop':
         block = new blocks.LoopBlock(x, y);
         break;
-      case 'Conditional':
+      case 'conditional':
         block = new blocks.ConditionalBlock(x, y);
         break;
-      case 'Variable':
+      case 'variable':
         block = new blocks.VariableBlock(x, y);
         break;
       default:
-        throw new TypeError('Unrecognized block type');
+        throw new TypeError(`Unrecognized block type: ${JSON.stringify(blockType)}`);
     }
     this.canvas.addBlock(block);
 
     const selectBlock = (e) => {
-      // We we are changing the active block unhighlight the old block and update
-      //   the move listener.
+      // Prevents clicking from dismissing the block.
+      if (e) { e.stopPropagation(); }
 
-      if (e) { e.stopPropagation(); } // Prevents clicking from dismissing the block.
+      // We are changing the active block unhighlight the old block and update
+      //   the move listener.
       if (this.activeBlock === block) {
         return;
       } else if (this.activeBlock && this.activeBlock !== block) {
@@ -128,6 +141,7 @@ class Controller {
     // If config bar is closed open it.
     if (!this.configBarActive) { this.toggleConfigBar(); }
     selectBlock();
+    return block;
   }
 
   toggleConfigBar() {
@@ -153,7 +167,7 @@ class Controller {
       const newY = e => e.pageY - cvs.getBoundingClientRect().top - (blockBounds.height / 4);
 
       this.moveListener = (e) => {
-        if (e.buttons === 1) setPositionToCoords(this.activeBlock.element, newX(e), newY(e));
+        if (e.buttons === 1) this.activeBlock.updatePosition(newX(e), newY(e));
         else this.disableMoving();
       };
 
@@ -171,6 +185,75 @@ class Controller {
     this.disableMoveListener = undefined;
   }
 
+/*
+ * Project Management
+ */
+
+  newProject() {
+    if (window.confirm('Make a new project?\nYou will lose any unsaved work.')) {
+      this.canvas.clear();
+      this.fileSavePath = undefined;
+    }
+  }
+
+  getProjectJSON() {
+    return JSON.stringify(this.canvas);
+  }
+
+  setProjectJSON(json) {
+    const newChart = JSON.parse(json);
+    newChart.blocks.forEach((block) => {
+      const template = document.querySelector(`.template[data-type="${block.type}"`);
+      blocks.TemplateBlock.dragged = template;
+      const newBlock = this.createBlock(block.type, block.loc.x, block.loc.y);
+      newBlock.attributes = block.attributes;
+      newBlock.next = block.next;
+    });
+  }
+
+  openProject() {
+    const files = dialog.showOpenDialog({
+      properties: ['openFile'],
+      filters: [{ name: 'Trace Files', extensions: ['trc'] }],
+    });
+
+    if (files && files[0]) {
+      const res = ipcRenderer.sendSync('load-file', { filename: files[0] });
+
+      // If open was successful set fileSavePath.
+      if (!res.err && res.data) {
+        this.fileSavePath = files[0];
+        const rawjson = res.data.data.map(chr => String.fromCharCode(chr)).join('');
+
+        // Redraw the canvas
+        this.canvas.clear();
+        this.setProjectJSON(rawjson);
+      } else throw res.err;
+    }
+  }
+
+  saveProject() {
+    if (!this.fileSavePath) {
+      const fileLocation = dialog.showSaveDialog({
+        properties: ['openFile'],
+        filters: [{ name: 'Trace Files', extensions: ['trc'] }],
+      });
+      if (fileLocation) {
+        this.fileSavePath = fileLocation;
+        console.log(this.fileSavePath);
+      } else {
+        // User hit cancel, ignore save request.
+        return;
+      }
+    }
+
+    // Actually save the file.
+    const res = ipcRenderer.sendSync('save-file', {
+      filename: this.fileSavePath,
+      data: this.getProjectJSON(),
+    });
+    if (res.err) throw res.err;
+  }
 }
 
 window.controller = new Controller();
