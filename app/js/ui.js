@@ -34,6 +34,7 @@ class Controller {
     // Need a wrapper for this guy too.
     document.getElementById('config-bar-header')
       .addEventListener('click', () => this.toggleConfigBar(), false);
+    document.getElementById('new-project').addEventListener('click', () => this.newProject(), false)
   }
 
   initCanvas() {
@@ -87,25 +88,26 @@ class Controller {
   createBlock(blockType, x, y) {
     let block;
     switch (blockType) {
-      case 'Loop':
+      case 'loop':
         block = new blocks.LoopBlock(x, y);
         break;
-      case 'Conditional':
+      case 'conditional':
         block = new blocks.ConditionalBlock(x, y);
         break;
-      case 'Variable':
+      case 'variable':
         block = new blocks.VariableBlock(x, y);
         break;
       default:
-        throw new TypeError('Unrecognized block type');
+        throw new TypeError('Unrecognized block type: '+JSON.stringify(blockType));
     }
     this.canvas.addBlock(block);
 
     const selectBlock = (e) => {
-      // We we are changing the active block unhighlight the old block and update
-      //   the move listener.
+      // Prevents clicking from dismissing the block.
+      if (e) { e.stopPropagation(); } 
 
-      if (e) { e.stopPropagation(); } // Prevents clicking from dismissing the block.
+      // We are changing the active block unhighlight the old block and update
+      //   the move listener.
       if (this.activeBlock === block) {
         return;
       } else if (this.activeBlock && this.activeBlock !== block) {
@@ -128,6 +130,7 @@ class Controller {
     // If config bar is closed open it.
     if (!this.configBarActive) { this.toggleConfigBar(); }
     selectBlock();
+    return block;
   }
 
   toggleConfigBar() {
@@ -171,6 +174,28 @@ class Controller {
     this.disableMoveListener = undefined;
   }
 
+/*
+ * Project Management
+ */
+
+  newProject() {
+    if (confirm('Make a new project?\nYou will lose any unsaved work.')) this.canvas.clear()
+  }
+
+  getProjectJSON() {
+    return JSON.stringify(this.canvas)
+  }
+
+  loadProjectJSON(json) {
+    const newChart = JSON.parse(json)
+    newChart.blocks.forEach( block => {
+        const template = document.querySelector(`.template[data-type="${block.type}"`)
+        blocks.TemplateBlock.dragged = template
+        const newBlock = this.createBlock(block.type, block.loc.x, block.loc.y)
+        newBlock.attributes = block.attributes;
+        newBlock.next = block.next;
+    })
+  }
 }
 
 window.controller = new Controller();
