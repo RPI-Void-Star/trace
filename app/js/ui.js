@@ -6,6 +6,20 @@
 const blocks = require('./block.js');
 const Canvas = require('./canvas.js');
 
+/*
+ * Helper functions
+ */
+
+const setPositionToCoords = (node, x, y) => {
+  node.style.position = 'absolute';
+  node.style.top = `${y}px`;
+  node.style.left = `${x}px`;
+};
+
+
+/*
+ * Controller Class
+ */
 
 class Controller {
 
@@ -13,10 +27,10 @@ class Controller {
     this.canvas = undefined;
     this.templateBlocks = [];
     this.activeBlock = undefined;
-    // This is a wrapper to protect agaisnt changing this context.
+    // This is a wrapper to protect against changing this context.
     //   Needs to be a variable to allow for proper event listener removal.
     //   Needs to be an instance variable since the enableMoving calls needs the instance.
-    this.enableMovingListener =  _ => this.enableMoving()
+    this.enableMovingListener = () => this.enableMoving();
     document.getElementById('config-bar-header')
       .addEventListener('click', this.toggleConfigBar, false);
   }
@@ -47,7 +61,7 @@ class Controller {
     }, false);
 
     document.getElementById('chart-container').addEventListener('click',
-      _ => this.unselectBlock(), false);
+      () => this.unselectBlock(), false);
   }
 
   initTemplateBlocks() {
@@ -59,12 +73,12 @@ class Controller {
   }
 
   // Removes highlighting, disables moving, and removes listeners.
-  unselectBlock(){
-    if (this.activeBlock){
-        this.activeBlock.removeHighlight();
-        this.activeBlock.element.removeEventListener('mousedown', this.enableMovingListener);
-        this.disableMoving();
-        this.activeBlock = undefined
+  unselectBlock() {
+    if (this.activeBlock) {
+      this.activeBlock.removeHighlight();
+      this.activeBlock.element.removeEventListener('mousedown', this.enableMovingListener);
+      this.disableMoving();
+      this.activeBlock = undefined;
     }
   }
 
@@ -85,13 +99,13 @@ class Controller {
     }
     this.canvas.addBlock(block);
 
-    const selectBlock = e => {
+    const selectBlock = (e) => {
       // We we are changing the active block unhighlight the old block and update
       //   the move listener.
 
       if (e) { e.stopPropagation(); } // Prevents clicking from dismissing the block.
-      if (this.activeBlock === block){
-        return
+      if (this.activeBlock === block) {
+        return;
       } else if (this.activeBlock && this.activeBlock !== block) {
         this.unselectBlock();
       }
@@ -103,68 +117,59 @@ class Controller {
       // Update config bar based on current selection.
       document.getElementById('config-bar')
         .getElementsByTagName('content')[0]
-        .innerHTML = this.activeBlock.getParamsMeta(); 
+        .innerHTML = this.activeBlock.getParamsMeta();
     };
 
     block.element.addEventListener('click', selectBlock, false);
 
     // If config bar is closed open it.
-    if (!this.configBarActive){ this.toggleConfigBar() }
+    if (!this.configBarActive) { this.toggleConfigBar(); }
     selectBlock();
   }
 
   toggleConfigBar() {
-    this.configBarActive = !this.configBarActive
-    document.body.classList.toggle('show-config-bar')
+    this.configBarActive = !this.configBarActive;
+    document.body.classList.toggle('show-config-bar');
   }
 
 /*
  * Enables blocks to be moved on the canvas.
  */
 
-  enableMoving(){
-
+  enableMoving() {
     // Don't allow another listener to be added if block is already moving.
-    if (!this.moveListener && this.activeBlock){
-      const blockBounds = this.activeBlock.element.getBoundingClientRect()
-      // Although nastey it is important to leave these as funcitons so they update when the mouse moves
-      //   this allows tracking even when the user scrolls, otherwise we take a snapshot of the offsets
-      //   with the current scroll bounds which leads to incorrect movement.
-      const newX = (e) => e.screenX - this.canvas.element.getBoundingClientRect().left - blockBounds.width
-      const newY = (e) => e.screenY - this.canvas.element.getBoundingClientRect().top - blockBounds.height
+    if (!this.moveListener && this.activeBlock) {
+      // Although nasty it is important to leave these as funcitons so they
+      //   update when the mouse moves this allows tracking even when the
+      //   user scrolls, otherwise we take a snapshot of the offsets with
+      //   the current scroll bounds which leads to incorrect movement.
+      const cvs = this.canvas.element;
+      // Since the block bounds doesn't change we don't need to worry about that here.
+      const blockBounds = this.activeBlock.element.getBoundingClientRect();
+      const newX = e => e.screenX - cvs.getBoundingClientRect().left - blockBounds.width;
+      const newY = e => e.screenY - cvs.getBoundingClientRect().top - blockBounds.height;
 
-      this.moveListener = e => { 
-        if (e.buttons == 1) setPositionToCoords(this.activeBlock.element, newX(e), newY(e));
-        else this.disableMoving()
-      }
+      this.moveListener = (e) => {
+        if (e.buttons === 1) setPositionToCoords(this.activeBlock.element, newX(e), newY(e));
+        else this.disableMoving();
+      };
 
-      document.getElementById("chart-container").addEventListener('mousemove', this.moveListener)
+      document.getElementById('chart-container').addEventListener('mousemove', this.moveListener);
     } else {
-      console.log("Attempted to move block that was already moving, or when one wasn't selected: " + JSON.stringify(this))
+      console.log(`Attempted to move block that was already moving, or when one wasn't selected: ${
+        JSON.stringify(this)}`);
     }
   }
 
-  disableMoving(){
-    document.getElementById("chart-container").removeEventListener('mousemove', this.moveListener)
-    document.getElementById("chart-container").removeEventListener('mouseup', this.disableMoveListener)
-    this.moveListener = undefined
-    this.disableMoveListener = undefined
+  disableMoving() {
+    document.getElementById('chart-container').removeEventListener('mousemove', this.moveListener);
+    document.getElementById('chart-container').removeEventListener('mouseup', this.disableMoveListener);
+    this.moveListener = undefined;
+    this.disableMoveListener = undefined;
   }
 
 }
 
-/*
- * Helper functions
- */
-
-const setPositionToCoords = (node, x, y) => {
-  node.style.position = 'absolute';
-  node.style.top = `${y}px`;
-  node.style.left = `${x}px`;
-};
-
-
-
 window.controller = new Controller();
-controller.initCanvas();
-controller.initTemplateBlocks();
+window.controller.initCanvas();
+window.controller.initTemplateBlocks();
