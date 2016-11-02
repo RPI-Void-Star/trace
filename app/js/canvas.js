@@ -14,7 +14,6 @@ class Canvas {
     this.h = 0;
     this.blocks = [];
     this.updateCanvas();
-    this.activeBlock = undefined;
   }
 
   updateCanvas() {
@@ -55,11 +54,8 @@ class Canvas {
     this.blocks.push(block);
   }
 
-  clearActiveBlock(){
+  clearBlockHighlight(){
     this.blocks.forEach( block => block.removeHighlight() )
-    this.activeBlock = undefined;
   }
-
 }
-
 module.exports = Canvas;

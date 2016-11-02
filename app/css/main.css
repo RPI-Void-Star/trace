@@ -138,11 +138,22 @@ ul li {
     box-shadow: 0px 0px 15px #777;
     overflow: hidden;
     margin: 10px auto;
-    cursor: move;
     user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;
     -ms-user-select: none;
+}
+.block.active {
+    position: relative;
+    z-index: 1;
+    cursor: move;
+    box-shadow: 0px 0px 5px green;    
+    border: 2px solid green;
+    margin: 8px -2px;
+    border-bottom: 5px solid green;
+}
+.block.template {
+    cursor: move;
 }
 
 .block header {
@@ -151,11 +162,3 @@ ul li {
     padding: 5px;
     text-align: center;
 }
-
-.block.active {
-    box-shadow: 0px 0px 5px green;    
-    border: 2px solid green;
-    margin: 8px -2px;
-    border-bottom: 5px solid green;
-}
-     
