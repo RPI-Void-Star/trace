@@ -31,8 +31,9 @@ class Controller {
     //   Needs to be a variable to allow for proper event listener removal.
     //   Needs to be an instance variable since the enableMoving calls needs the instance.
     this.enableMovingListener = () => this.enableMoving();
+    // Need a wrapper for this guy too.
     document.getElementById('config-bar-header')
-      .addEventListener('click', this.toggleConfigBar, false);
+      .addEventListener('click', () => this.toggleConfigBar(), false);
   }
 
   initCanvas() {
@@ -76,7 +77,8 @@ class Controller {
   unselectBlock() {
     if (this.activeBlock) {
       this.activeBlock.removeHighlight();
-      this.activeBlock.element.removeEventListener('mousedown', this.enableMovingListener);
+      this.activeBlock.element.getElementsByTagName("header")[0].
+        removeEventListener('mousedown', this.enableMovingListener);
       this.disableMoving();
       this.activeBlock = undefined;
     }
@@ -111,7 +113,8 @@ class Controller {
       }
 
       this.activeBlock = block;
-      block.element.addEventListener('mousedown', this.enableMovingListener, false);
+      block.element.getElementsByTagName("header")[0].addEventListener('mousedown',
+        this.enableMovingListener, false);
       block.toggleSelect();
 
       // Update config bar based on current selection.
@@ -146,8 +149,8 @@ class Controller {
       const cvs = this.canvas.element;
       // Since the block bounds doesn't change we don't need to worry about that here.
       const blockBounds = this.activeBlock.element.getBoundingClientRect();
-      const newX = e => e.screenX - cvs.getBoundingClientRect().left - blockBounds.width;
-      const newY = e => e.screenY - cvs.getBoundingClientRect().top - blockBounds.height;
+      const newX = e => e.pageX - cvs.getBoundingClientRect().left - blockBounds.width/2;
+      const newY = e => e.pageY - cvs.getBoundingClientRect().top - blockBounds.height/4;
 
       this.moveListener = (e) => {
         if (e.buttons === 1) setPositionToCoords(this.activeBlock.element, newX(e), newY(e));
