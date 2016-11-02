@@ -54,8 +54,8 @@ class Canvas {
     this.blocks.push(block);
   }
 
-  clearBlockHighlight(){
-    this.blocks.forEach( block => block.removeHighlight() )
+  clearBlockHighlight() {
+    this.blocks.forEach(block => block.removeHighlight());
   }
 }
 module.exports = Canvas;

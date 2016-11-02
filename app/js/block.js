@@ -85,7 +85,7 @@ class Block {
     this.element.classList.toggle('active');
   }
 
-  removeHighlight(){
+  removeHighlight() {
     this.element.classList.remove('active');
   }
 
