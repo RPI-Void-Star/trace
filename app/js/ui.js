@@ -9,21 +9,6 @@ const { dialog } = require('electron').remote;
 const { ipcRenderer } = require('electron');
 
 /*
- * Helper functions
- */
-
-const setPositionToCoords = (node, x, y) => {
-  node.style.position = 'absolute';
-  node.style.top = `${y}px`;
-  node.style.left = `${x}px`;
-};
-
-
-/*
- * Controller Class
- */
-
-/*
  * Controller Class
  */
 
