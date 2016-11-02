@@ -93,7 +93,7 @@ class Block {
     this.element.style.position = 'absolute';
     this.element.style.top = `${y}px`;
     this.element.style.left = `${x}px`;
-    this.loc = {x, y};
+    this.loc = { x, y };
   }
 
   /**
@@ -152,7 +152,7 @@ class LoopBlock extends Block {
       attributes: {
         children: this.children,
       },
-    }
+    };
   }
 
 }
@@ -184,7 +184,7 @@ class ConditionalBlock extends Block {
           false: this.onFalse,
         },
       },
-    }
+    };
   }
 
 }
@@ -210,7 +210,7 @@ class VariableBlock extends Block {
       attributes: {
         value: this.value,
       },
-    }
+    };
   }
 
 }

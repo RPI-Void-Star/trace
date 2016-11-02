@@ -60,7 +60,7 @@ class Canvas {
 
   clear() {
     this.blocks.forEach(block => block.element.remove());
-    this.blocks = []
+    this.blocks = [];
   }
 }
 module.exports = Canvas;

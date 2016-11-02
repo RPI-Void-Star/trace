@@ -29,9 +29,9 @@ class Controller {
       .addEventListener('click', () => this.toggleConfigBar(), false);
 
     // Project management buttons
-    document.getElementById('new-project').addEventListener('click', () => this.newProject(), false)
-    document.getElementById('open-project').addEventListener('click', () => this.openProject(), false)
-    document.getElementById('save-project').addEventListener('click', () => this.saveProject(), false)
+    document.getElementById('new-project').addEventListener('click', () => this.newProject(), false);
+    document.getElementById('open-project').addEventListener('click', () => this.openProject(), false);
+    document.getElementById('save-project').addEventListener('click', () => this.saveProject(), false);
   }
 
   initCanvas() {
@@ -95,13 +95,13 @@ class Controller {
         block = new blocks.VariableBlock(x, y);
         break;
       default:
-        throw new TypeError('Unrecognized block type: '+JSON.stringify(blockType));
+        throw new TypeError(`Unrecognized block type: ${JSON.stringify(blockType)}`);
     }
     this.canvas.addBlock(block);
 
     const selectBlock = (e) => {
       // Prevents clicking from dismissing the block.
-      if (e) { e.stopPropagation(); } 
+      if (e) { e.stopPropagation(); }
 
       // We are changing the active block unhighlight the old block and update
       //   the move listener.
@@ -176,45 +176,45 @@ class Controller {
  */
 
   newProject() {
-    if (confirm('Make a new project?\nYou will lose any unsaved work.')) {
-      this.canvas.clear()
-      this.fileSavePath = undefined
+    if (window.confirm('Make a new project?\nYou will lose any unsaved work.')) {
+      this.canvas.clear();
+      this.fileSavePath = undefined;
     }
   }
 
   getProjectJSON() {
-    return JSON.stringify(this.canvas)
+    return JSON.stringify(this.canvas);
   }
 
   setProjectJSON(json) {
-    const newChart = JSON.parse(json)
-    newChart.blocks.forEach( block => {
-        const template = document.querySelector(`.template[data-type="${block.type}"`)
-        blocks.TemplateBlock.dragged = template
-        const newBlock = this.createBlock(block.type, block.loc.x, block.loc.y)
-        newBlock.attributes = block.attributes;
-        newBlock.next = block.next;
-    })
+    const newChart = JSON.parse(json);
+    newChart.blocks.forEach((block) => {
+      const template = document.querySelector(`.template[data-type="${block.type}"`);
+      blocks.TemplateBlock.dragged = template;
+      const newBlock = this.createBlock(block.type, block.loc.x, block.loc.y);
+      newBlock.attributes = block.attributes;
+      newBlock.next = block.next;
+    });
   }
 
   openProject() {
     const files = dialog.showOpenDialog({
       properties: ['openFile'],
-      filters: [{name: 'Trace Files', extensions: ['trc']}]
-    })
+      filters: [{ name: 'Trace Files', extensions: ['trc'] }],
+    });
 
-    if (files && files[0]){
-      const res = ipcRenderer.sendSync("load-file", { filename: files[0] })
+    if (files && files[0]) {
+      const res = ipcRenderer.sendSync('load-file', { filename: files[0] });
 
       // If open was successful set fileSavePath.
-      if (!res.err && res.data){
+      if (!res.err && res.data) {
         this.fileSavePath = files[0];
-        const rawjson = res.data.data.map(chr => String.fromCharCode(chr)).join("")
+        const rawjson = res.data.data.map(chr => String.fromCharCode(chr)).join('');
 
         // Redraw the canvas
-        this.canvas.clear()
-        this.setProjectJSON(rawjson)
-      } else throw res.err
+        this.canvas.clear();
+        this.setProjectJSON(rawjson);
+      } else throw res.err;
     }
   }
 
@@ -222,23 +222,23 @@ class Controller {
     if (!this.fileSavePath) {
       const fileLocation = dialog.showSaveDialog({
         properties: ['openFile'],
-        filters: [{name: 'Trace Files', extensions: ['trc']}]
-      })
-      if (fileLocation){
-        this.fileSavePath = fileLocation
-        console.log(this.fileSavePath)
+        filters: [{ name: 'Trace Files', extensions: ['trc'] }],
+      });
+      if (fileLocation) {
+        this.fileSavePath = fileLocation;
+        console.log(this.fileSavePath);
       } else {
         // User hit cancel, ignore save request.
-        return
+        return;
       }
     }
 
     // Actually save the file.
-    const res = ipcRenderer.sendSync("save-file", {
+    const res = ipcRenderer.sendSync('save-file', {
       filename: this.fileSavePath,
       data: this.getProjectJSON(),
-    })
-    if (res.err) throw res.err
+    });
+    if (res.err) throw res.err;
   }
 }
 

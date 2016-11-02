@@ -1,5 +1,6 @@
-var electron = require('electron');
-const fs = require('fs')
+const electron = require('electron');
+const fs = require('fs');
+
 let mainWindow = null;
 
 electron.app.on('window-all-closed', () => {
@@ -23,13 +24,13 @@ electron.app.on('ready', () => {
 
 // IPC listeners for file transactions.
 electron.ipcMain.on('save-file', (event, arg) => {
-  fs.writeFile(arg.filename, arg.data, err => {
-    event.returnValue = { err }
-  })
+  fs.writeFile(arg.filename, arg.data, (err) => {
+    event.returnValue = { err };
+  });
 });
 
 electron.ipcMain.on('load-file', (event, arg) => {
   fs.readFile(arg.filename, (err, data) => {
-    event.returnValue = { err, data }
-  })
+    event.returnValue = { err, data };
+  });
 });
