@@ -1,15 +1,15 @@
-import { app, BrowserWindow } from 'electron';
-
+var electron = require('electron');
+const fs = require('fs')
 let mainWindow = null;
 
-app.on('window-all-closed', () => {
+electron.app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
-    app.quit();
+    electron.app.quit();
   }
 });
 
-app.on('ready', () => {
-  mainWindow = new BrowserWindow({
+electron.app.on('ready', () => {
+  mainWindow = new electron.BrowserWindow({
     width: 1000,
     height: 700,
   });
@@ -19,4 +19,17 @@ app.on('ready', () => {
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
+});
+
+// IPC listeners for file transactions.
+electron.ipcMain.on('save-file', (event, arg) => {
+  fs.writeFile(arg.filename, arg.data, err => {
+    event.returnValue = { err }
+  })
+});
+
+electron.ipcMain.on('load-file', (event, arg) => {
+  fs.readFile(arg.filename, (err, data) => {
+    event.returnValue = { err, data }
+  })
 });

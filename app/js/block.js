@@ -89,6 +89,13 @@ class Block {
     this.element.classList.remove('active');
   }
 
+  updatePosition(x, y) {
+    this.element.style.position = 'absolute';
+    this.element.style.top = `${y}px`;
+    this.element.style.left = `${x}px`;
+    this.loc = {x, y};
+  }
+
   /**
    * @virtual
    */

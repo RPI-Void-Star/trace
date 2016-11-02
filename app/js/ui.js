@@ -5,16 +5,8 @@
 //
 const blocks = require('./block.js');
 const Canvas = require('./canvas.js');
-
-/*
- * Helper functions
- */
-
-const setPositionToCoords = (node, x, y) => {
-  node.style.position = 'absolute';
-  node.style.top = `${y}px`;
-  node.style.left = `${x}px`;
-};
+const { dialog } = require('electron').remote;
+const { ipcRenderer } = require('electron');
 
 
 /*
@@ -27,6 +19,7 @@ class Controller {
     this.canvas = undefined;
     this.templateBlocks = [];
     this.activeBlock = undefined;
+    this.fileSavePath = undefined;
     // This is a wrapper to protect against changing this context.
     //   Needs to be a variable to allow for proper event listener removal.
     //   Needs to be an instance variable since the enableMoving calls needs the instance.
@@ -34,7 +27,11 @@ class Controller {
     // Need a wrapper for this guy too.
     document.getElementById('config-bar-header')
       .addEventListener('click', () => this.toggleConfigBar(), false);
+
+    // Project management buttons
     document.getElementById('new-project').addEventListener('click', () => this.newProject(), false)
+    document.getElementById('open-project').addEventListener('click', () => this.openProject(), false)
+    document.getElementById('save-project').addEventListener('click', () => this.saveProject(), false)
   }
 
   initCanvas() {
@@ -156,7 +153,7 @@ class Controller {
       const newY = e => e.pageY - cvs.getBoundingClientRect().top - (blockBounds.height / 4);
 
       this.moveListener = (e) => {
-        if (e.buttons === 1) setPositionToCoords(this.activeBlock.element, newX(e), newY(e));
+        if (e.buttons === 1) this.activeBlock.updatePosition(newX(e), newY(e));
         else this.disableMoving();
       };
 
@@ -179,14 +176,17 @@ class Controller {
  */
 
   newProject() {
-    if (confirm('Make a new project?\nYou will lose any unsaved work.')) this.canvas.clear()
+    if (confirm('Make a new project?\nYou will lose any unsaved work.')) {
+      this.canvas.clear()
+      this.fileSavePath = undefined
+    }
   }
 
   getProjectJSON() {
     return JSON.stringify(this.canvas)
   }
 
-  loadProjectJSON(json) {
+  setProjectJSON(json) {
     const newChart = JSON.parse(json)
     newChart.blocks.forEach( block => {
         const template = document.querySelector(`.template[data-type="${block.type}"`)
@@ -195,6 +195,50 @@ class Controller {
         newBlock.attributes = block.attributes;
         newBlock.next = block.next;
     })
+  }
+
+  openProject() {
+    const files = dialog.showOpenDialog({
+      properties: ['openFile'],
+      filters: [{name: 'Trace Files', extensions: ['trc']}]
+    })
+
+    if (files && files[0]){
+      const res = ipcRenderer.sendSync("load-file", { filename: files[0] })
+
+      // If open was successful set fileSavePath.
+      if (!res.err && res.data){
+        this.fileSavePath = files[0];
+        const rawjson = res.data.data.map(chr => String.fromCharCode(chr)).join("")
+
+        // Redraw the canvas
+        this.canvas.clear()
+        this.setProjectJSON(rawjson)
+      } else throw res.err
+    }
+  }
+
+  saveProject() {
+    if (!this.fileSavePath) {
+      const fileLocation = dialog.showSaveDialog({
+        properties: ['openFile'],
+        filters: [{name: 'Trace Files', extensions: ['trc']}]
+      })
+      if (fileLocation){
+        this.fileSavePath = fileLocation
+        console.log(this.fileSavePath)
+      } else {
+        // User hit cancel, ignore save request.
+        return
+      }
+    }
+
+    // Actually save the file.
+    const res = ipcRenderer.sendSync("save-file", {
+      filename: this.fileSavePath,
+      data: this.getProjectJSON(),
+    })
+    if (res.err) throw res.err
   }
 }
 
