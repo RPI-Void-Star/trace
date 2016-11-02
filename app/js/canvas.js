@@ -55,6 +55,11 @@ class Canvas {
     this.blocks.push(block);
   }
 
+  clearActiveBlock(){
+    this.blocks.forEach( block => block.removeHighlight() )
+    this.activeBlock = undefined;
+  }
+
 }
 
 module.exports = Canvas;

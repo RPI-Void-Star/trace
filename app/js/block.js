@@ -85,6 +85,10 @@ class Block {
     this.element.classList.toggle('active');
   }
 
+  removeHighlight(){
+    this.element.classList.remove('active');
+  }
+
   /**
    * @virtual
    */

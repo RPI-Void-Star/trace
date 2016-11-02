@@ -41,6 +41,10 @@ class Controller {
       event.stopPropagation();
       return false;
     }, false);
+
+    document.getElementById('chart-container').addEventListener('click',
+      this.canvas.clearActiveBlock.bind(this.canvas), false);
+
   }
 
   initTemplateBlocks() {
@@ -67,16 +71,19 @@ class Controller {
         throw new TypeError('Unrecognized block type');
     }
     this.canvas.addBlock(block);
-    const selectBlock = () => {
-      if (this.activeBlock) {
-        this.activeBlock.toggleSelect();
+
+    const selectBlock = (e) => {
+      if (this.activeBlock && this.activeBlock !== block) {
+        this.activeBlock.removeHighlight();
       }
       block.toggleSelect();
       this.activeBlock = block;
       document.getElementById('config-bar')
         .getElementsByTagName('content')[0]
         .innerHTML = this.activeBlock.getParamsMeta();
+      if (e) { e.stopPropagation(); } // Prevents clicking from dismissing the block. 
     };
+
     block.element.addEventListener('click', selectBlock, false);
     this.configBarActive = false;
     this.toggleConfigBar();
