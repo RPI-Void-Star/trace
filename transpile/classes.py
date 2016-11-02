@@ -1,22 +1,27 @@
 #! /usr/bin/python3
+from abc import ABCMeta
 
-class Block:
-    id = -1
-    next = -1
-    type = "null"
-    attributes = {}
+class Block(metaclass=ABCMeta):
+    def __init__(self):
+        self._id = -1
+        self._next = -1
+        self._type = "null"
+        self._attributes = {}
 
 class LoopBlock(Block):
-    type = "loop"
+    def __init__(self):
+        self._type = "loop"
 
 class ConditionalBlock(Block):
-    type = "conditional"
-    condition = "null"
-    ifTrue = "null"
-    ifFalse = "null"
+    def __init__(self):
+        self._type = "conditional"
+        self._condition = "null"
+        self._ifTrue = "null"
+        self._ifFalse = "null"
 
 class VariableBlock(Block):
-    type = "variable"
+    def __init__(self):
+        self._type = "variable"
 
 if __name__ == "__main__":
     print("WARNING: This file is not meant to stand alone. Run main.py instead.")
