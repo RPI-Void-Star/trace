@@ -77,8 +77,8 @@ class Controller {
   unselectBlock() {
     if (this.activeBlock) {
       this.activeBlock.removeHighlight();
-      this.activeBlock.element.getElementsByTagName("header")[0].
-        removeEventListener('mousedown', this.enableMovingListener);
+      this.activeBlock.element.getElementsByTagName('header')[0]
+        .removeEventListener('mousedown', this.enableMovingListener);
       this.disableMoving();
       this.activeBlock = undefined;
     }
@@ -113,7 +113,7 @@ class Controller {
       }
 
       this.activeBlock = block;
-      block.element.getElementsByTagName("header")[0].addEventListener('mousedown',
+      block.element.getElementsByTagName('header')[0].addEventListener('mousedown',
         this.enableMovingListener, false);
       block.toggleSelect();
 
@@ -149,8 +149,8 @@ class Controller {
       const cvs = this.canvas.element;
       // Since the block bounds doesn't change we don't need to worry about that here.
       const blockBounds = this.activeBlock.element.getBoundingClientRect();
-      const newX = e => e.pageX - cvs.getBoundingClientRect().left - blockBounds.width/2;
-      const newY = e => e.pageY - cvs.getBoundingClientRect().top - blockBounds.height/4;
+      const newX = e => e.pageX - cvs.getBoundingClientRect().left - (blockBounds.width / 2);
+      const newY = e => e.pageY - cvs.getBoundingClientRect().top - (blockBounds.height / 4);
 
       this.moveListener = (e) => {
         if (e.buttons === 1) setPositionToCoords(this.activeBlock.element, newX(e), newY(e));
