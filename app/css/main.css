@@ -62,6 +62,10 @@ body > main {
     -webkit-transition: width 1s;
     transition: width 1s;
 }
+.show-config-bar > main {
+    width: calc( 100vw - 300px - 300px );
+}
+
 body > aside {
     width: 300px;
     color: white;
@@ -85,9 +89,20 @@ body > aside {
 }
 
 #config-bar content {
-    -webskit-transition: opacity 1s;
+    -webkit-transition: opacity 1s;
     transition: opacity 1s;
+    opacity: 0;
 }
+
+.show-config-bar #config-bar {
+    width: 300px;
+}
+.show-config-bar #config-bar content {
+    opacity: 1;
+}
+
+
+
 
 .right { float: right; }
 .left { float: left; }
