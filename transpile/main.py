@@ -9,105 +9,94 @@ from blocks import *
 # json.load
 import json
 
-def load(blocks, index):
-    loop = False
-    conditional = False
-    variable = False
-    start = False
-
-    # Check type
-    if 'type' in blocks[index]:
-        if blocks[index]['type'] == 'start':
-            start = True
+def createBlock(blockDictionary, index):
+    '''Creates a block with the default atributes from the loaded json dictionary corresponding to that block'''
+    returnVal = None
+    
+    if 'type' in blockDictionary:
+        if blockDictionary['type'] == 'start':
             returnVal = StartBlock(index)
-        elif blocks[index]['type'] == 'loop':
-            loop = True
+        elif blockDictionary['type'] == 'loop':
             returnVal = LoopBlock(index)
-        elif blocks[index]['type'] == 'conditional':
-            conditional = True
+        elif blockDictionary['type'] == 'conditional':
             returnVal = ConditionalBlock(index)
-        elif blocks[index]['type'] == 'variable':
-            variable = True
+        elif blockDictionary['type'] == 'variable':
             returnVal = VariableBlock(index)
         else:
-            print("ERROR: Unknown block type: " + blocks[index]['type'])
+            print('ERROR: Unknown block type: ' + blocks[index]['type'])
             exit(1)
     else:
-        print("ERROR: Block", index, "missing 'type'")
+        print('ERROR: Block', index, 'missing "type"')
         exit(1)
-
-    # Check next
-    if 'next' in blocks[index]:
-        returnVal.next = blocks[index]['next']
-    else:
-        print("ERROR: Block", index, "missing 'next'")
-        exit(1)
-
-    # Check attributes
-    if 'attributes' in blocks[index]:
-        returnVal.attributes = blocks[index]['attributes']
-        if conditional == True:
-            if 'condition' in blocks[index]['attributes']:
-                returnVal.condition = blocks[index]['attributes']['condition']
-            else:
-                print("ERROR: Conditional block", index, "missing attribute 'condition'")
-                print("Conditional blocks require attributes: 'condition', 'children: true', 'children: false'")
-                exit(1)
-
-            if 'children' in blocks[index]['attributes']:
-                if 'true' in blocks[index]['attributes']['children']:
-                    returnVal.true = blocks[index]['attributes']['children']['true']
-                else:
-                    print("ERROR: Conditional block", index, "missing attribute: 'true'")
-                    print("Conditional blocks require attributes: 'condition', 'children: true', 'children: false'")
-                    exit(1)
-
-                if 'false' in blocks[index]['attributes']['children']:
-                    returnVal.false = blocks[index]['attributes']['children']['false']
-                else:
-                    print("ERROR: Conditional block", index, "missing attribute: 'false'")
-                    print("Conditional blocks require attributes: 'condition', 'children: true', 'children: false'")
-                    exit(1)
-            else:
-                print("ERROR: Conditional block", index, "missing attributes: 'children: true', 'children: false'")
-                print("Conditional blocks require attributes: 'condition', 'children: true', 'children: false'")
-                exit(1)
-
-    elif conditional == True:
-        print("ERROR: Block", index, "missing 'attributes'")
-        print("Conditional blocks require attributes: 'condition', 'children: true', 'children: false'")
-        exit(1)
-
+    
     return returnVal
+    
+def loadBlockArray(blockDictionary):
+    '''Creates blocks corresponding to those in the dictionary with their default atributes'''
+    blockArray = [None] * len(blockDictionary)
+    for index in range(0, len(blockDictionary)):
+        curDict = blockDictionary[index]
+        curBlock = createBlock(curDict, index)
+        blockArray[index] = curBlock
+    return blockArray
+
+def populateAttributes(blockDictionary, blocks):
+    '''Populates the attributes of the blocks from the dictionary'''
+    for index in range(0, len(blockDictionary)):
+        curDict = blockDictionary[index]
+        curBlock = blocks[index]
+        if 'next' in curDict:
+            if not curDict['next'] is None:
+                curBlock.next = blocks[int(curDict['next'])]
+        else:
+            print('ERROR: Block ' + index + ' missing next property')
+            exit(1)
+        if 'attributes' in curDict:
+            attributes = curDict['attributes']
+            for attribute in curDict['attributes']:
+                if (attribute == 'child'):
+                    childIndex = int(attributes['child'])
+                    curBlock.child = blocks[childIndex]
+                elif (attribute == 'children'):
+                    if not 'true'  in attributes['children']:
+                        print('ERROR: Conditional block' + index + ' missing true child')
+                    if not 'false' in attributes['children']:
+                        print('ERROR: Conditional block' + index + ' missing false child')
+                    if not attributes['children']['true'] is None:
+                        trueIndex  = int(attributes['children']['true'])
+                        curBlock.ifTrue  = blocks[trueIndex]
+                    if not attributes['children']['false'] is None:
+                        falseIndex = int(attributes['children']['false'])
+                        curBlock.ifFalse = blocks[falseIndex]
+                else:
+                    setattr(curBlock, attribute, curDict['attributes'][attribute])
 
 def main_func(filename):
     inputFile = open(filename, 'r') # 'r' is the default permission, but explicit is better than implicit
 
+    blockArray = None
     tmp = {}
     jsonObj = json.load(inputFile)
     if 'blocks' not in jsonObj:
-        print("ERROR: No 'blocks' object in", sys.argv[1])
+        print('ERROR: No "blocks" object in', sys.argv[1])
         exit(1)
     else:
-        for i in jsonObj['blocks']:
-            tmp[int(i)] = load(jsonObj['blocks'], i)
+        blockDictionary = jsonObj['blocks']
+        blockArray = loadBlockArray(blockDictionary)
+        populateAttributes(blockDictionary, blockArray)
 
-    print(tmp)
-    startBlock = tmp[0]
-    current = startBlock
-    while type(current.next) is int:
-        current.next = tmp[current.next]
-        current = current.next
+    startBlock = blockArray[0]
+    print(startBlock.next)
 
     return startBlock
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     if len(sys.argv) != 2:
-        print("ERROR: Invalid number of arguments")
-        print("Usage: ./main.py [input-file.json]")
+        print('ERROR: Invalid number of arguments')
+        print('Usage: ./main.py [input-file.json]')
         exit(1)
-    if sys.argv[1] == "help" or sys.argv[1] == "--help" or sys.argv[1] == "-h":
-        print("Usage: ./main.py [input-file.json]")
+    if sys.argv[1] == 'help' or sys.argv[1] == '--help' or sys.argv[1] == '-h':
+        print('Usage: ./main.py [input-file.json]')
         exit(0)
 
     startBlock = main_func(sys.argv[1])
