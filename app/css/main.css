@@ -54,7 +54,7 @@ body > aside {
     float: left;
     overflow: hidden;
 }
-#block-bar { overflow: scroll; }
+#block-bar { overflow-y: scroll; }
 
 body > main {
     position: relative;
