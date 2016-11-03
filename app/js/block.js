@@ -56,9 +56,20 @@ TemplateBlock.dragOver = (event) => {
 
 
 const setPositionToCoords = (node, x, y) => {
-  node.style.position = 'absolute';
-  node.style.top = `${y}px`;
-  node.style.left = `${x}px`;
+  // Ignore updates to auto positioned nodes, throw error
+  //  if position is not a number.
+  function PosException(message) {
+    this.message = message;
+    this.name = 'PosException';
+  }
+
+  if (!isNaN(x) && !isNaN(y)) {
+    node.style.position = 'absolute';
+    node.style.top = `${y}px`;
+    node.style.left = `${x}px`;
+  } else if (x !== 'auto' || y !== 'auto') {
+    throw new PosException(`Invalid x, y, position: ${x} ${y}`);
+  }
 };
 
 
@@ -75,8 +86,10 @@ class Block {
     this.loc = { x, y };
     this.next = null;
     this.element = TemplateBlock.dragged.cloneNode(true);
-    setPositionToCoords(this.element, x - TemplateBlock.draggedOffset.x,
-                        y - TemplateBlock.draggedOffset.y);
+    if (x !== 'auto' && y !== 'auto') {
+      setPositionToCoords(this.element, x - TemplateBlock.draggedOffset.x,
+        y - TemplateBlock.draggedOffset.y);
+    }
     this.element.classList.remove('template');
     this.element.addEventListener('dragstart', Block.dragStart);
   }

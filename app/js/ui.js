@@ -86,6 +86,23 @@ class Controller {
     switch (blockType) {
       case 'loop':
         block = new blocks.LoopBlock(x, y);
+
+        block.element.addEventListener('drop', (event) => {
+          // Detects when blocks are dropped onto the loop and adds a copy of the block.
+          event.preventDefault();
+          event.stopPropagation();
+          // move dragged elem to the selected drop target
+
+          const type = blocks.TemplateBlock.dragged.getAttribute('data-type');
+          const child = this.createBlock(type, 'auto', 'auto');
+          block.children.push(child);
+          block.element.classList.add('full');
+          block.element.appendChild(child.element);
+
+          return false;
+        }, false);
+
+
         break;
       case 'conditional':
         block = new blocks.ConditionalBlock(x, y);
@@ -111,9 +128,13 @@ class Controller {
       }
 
       this.activeBlock = block;
-      block.element.getElementsByTagName('header')[0].addEventListener('mousedown',
-        this.enableMovingListener, false);
       block.toggleSelect();
+
+      // Enable moving only if block has absolute position.
+      if (x !== 'auto' && y !== 'auto') {
+        block.element.getElementsByTagName('header')[0].addEventListener('mousedown',
+          this.enableMovingListener, false);
+      }
 
       // Update config bar based on current selection.
       document.getElementById('config-bar')
