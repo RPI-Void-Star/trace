@@ -24,53 +24,52 @@ class ArduinoConverter(Converter):
     def convert(self, startBlock):
     
         program = ''
-        program += ArduinoConverter.parse(startBlock, '')
-        print(program)
+        program += parse(startBlock, '')
         
         f = open(self._outputFile, 'w')
         f.write(program)
         f.close()
         
-    @generic
-    def parse(block, space):
-        return ''
-        
-    @parse.when_type(Block)
-    def parseBlock(block, space):
-        return '' + ArduinoConverter.parse(block.next, space + '  ')
+@generic
+def parse(block, space):
+	return ''
+	
+@parse.when_type(Block)
+def parseBlock(block, space):
+	return '' + parse(block.next, space + '  ')
 
-    @parse.when_type(StartBlock)
-    def parseStartBlock(block, space):
-        return (space + 'int main()\n' +
-                space + '{{\n' +
-                space + '  while (1)\n' +
-                space + '  {{\n' +
-                space + '{0}\n' +
-                space + '  }}\n' +
-                space + '}}\n').format(ArduinoConverter.parse(block.next, space + '    '))
+@parse.when_type(StartBlock)
+def parseStartBlock(block, space):
+	return (space + 'int main()\n' +
+			space + '{{\n' +
+			space + '  while (1)\n' +
+			space + '  {{\n' +
+			'{0}\n' +
+			space + '  }}\n' +
+			space + '}}\n').format(parse(block.next, space + '    '))
 
-    @parse.when_type(LoopBlock)
-    def parseLoopBlock(block, space):
-        return (space + 'while ({0})\n' +
-                space + '{{\n' +
-                space + '{1}\n' +
-                space + '}}').format(
-                    block.condition,
-                    ArduinoConverter.parse(block.child, space + '  ')) + ArduinoConverter.parse(block.next, space + '  ')
+@parse.when_type(LoopBlock)
+def parseLoopBlock(block, space):
+	return (space + 'while ({0})\n' +
+			space + '{{\n' +
+			        '{1}\n' +
+			space + '}}').format(
+				block.condition,
+				parse(block.child, space + '  ')) + parse(block.next, space + '  ')
 
-    @parse.when_type(ConditionalBlock)
-    def parseConditionalBlock(block, space):
-        return (space + 'if ({0})\n' +
-                space + '{{\n' +
-                space + '{1}\n' +
-                space + '}}\n' +
-                space + 'else\n' +
-                space + '{{\n' +
-                space + '{2}\n' +
-                space + '}}').format(
-                    block.condition,
-                    ArduinoConverter.parse(block.ifTrue, space + '  '),
-                    ArduinoConverter.parse(block.ifFalse, space + '  ')) + ArduinoConverter.parse(block.next, space + '  ')
+@parse.when_type(ConditionalBlock)
+def parseConditionalBlock(block, space):
+	return (space + 'if ({0})\n' +
+			space + '{{\n' +
+			'{1}\n' +
+			space + '}}\n' +
+			space + 'else\n' +
+			space + '{{\n' +
+			'{2}\n' +
+			space + '}}').format(
+				block.condition,
+				parse(block.ifTrue, space + '  '),
+				parse(block.ifFalse, space + '  ')) + parse(block.next, space + '  ')
 
 
 if __name__ == "__main__":
