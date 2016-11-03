@@ -18,7 +18,7 @@ class Transpiler():
         '''Transpiles the given input file, uploading it via avrdude to the given port'''
         self.__load()
         self.__convert()
-        #self.__compile()
+        self.__compile()
         #self.__upload()
         # TODO return an error if any are encountered
     
