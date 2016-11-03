@@ -60,6 +60,8 @@ class Controller {
 
     document.getElementById('chart-container').addEventListener('click',
       () => this.unselectBlock(), false);
+
+    this.newProject();
   }
 
   initTemplateBlocks() {
@@ -84,6 +86,9 @@ class Controller {
   createBlock(blockType, x, y) {
     let block;
     switch (blockType) {
+      case 'start':
+        block = new blocks.StartBlock(x, y);
+        break;
       case 'loop':
         block = new blocks.LoopBlock(x, y);
 
@@ -196,9 +201,15 @@ class Controller {
  */
 
   newProject() {
-    if (window.confirm('Make a new project?\nYou will lose any unsaved work.')) {
+    if (this.canvas.blocks.length === 0 || window.confirm('Make a new project?\nYou will lose any unsaved work.')) {
       this.canvas.clear();
       this.fileSavePath = undefined;
+      const bounds = this.canvas.element.parentNode.getBoundingClientRect();
+      this.setProjectJSON(`{
+        "blocks": [
+            { "type": "start", "loc": { "x": ${(bounds.width / 2) - 100}, "y": ${(bounds.height / 2) - 40} } }
+      ]}`);
+      this.toggleConfigBar();
     }
   }
 

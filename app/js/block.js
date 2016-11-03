@@ -144,6 +144,24 @@ Block.dragStart = (event) => {
   // Add ability to link blocks from here later.
 };
 
+class StartBlock extends Block {
+
+  getParamsMeta() {
+    return `Block ${this.uid}: Pass start and collect $200.`;
+  }
+
+  toJSON() {
+    return {
+      next: this.next,
+      type: 'start',
+      loc: this.loc,
+      attributes: {
+      },
+    };
+  }
+
+}
+module.exports.StartBlock = StartBlock;
 
 class LoopBlock extends Block {
 

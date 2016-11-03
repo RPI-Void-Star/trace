@@ -155,6 +155,9 @@ ul li {
 .block.template {
     cursor: move;
 }
+.block[data-type="start"].template {
+    display: none;
+}
 .block[data-type="loop"].full {
     height: auto;
     width: auto;
