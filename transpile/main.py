@@ -3,8 +3,8 @@
 # sys.argv
 import sys
 
-# classes.Block
-import classes
+# blocks.Block
+from blocks import *
 
 # json.load
 import json
@@ -13,27 +13,28 @@ def load(blocks, index):
     loop = False
     conditional = False
     variable = False
+    start = False
 
     # Check type
     if 'type' in blocks[index]:
-        if blocks[index]['type'] == 'loop':
+        if blocks[index]['type'] == 'start':
+            start = True
+            returnVal = StartBlock(index)
+        elif blocks[index]['type'] == 'loop':
             loop = True
-            returnVal = classes.LoopBlock()
+            returnVal = LoopBlock(index)
         elif blocks[index]['type'] == 'conditional':
             conditional = True
-            returnVal = classes.ConditionalBlock()
+            returnVal = ConditionalBlock(index)
         elif blocks[index]['type'] == 'variable':
             variable = True
-            returnVal = classes.VariableBlock()
+            returnVal = VariableBlock(index)
         else:
-            returnVal = classes.Block()
-            returnVal.type = blocks[index]['type']
+            print("ERROR: Unknown block type: " + blocks[index]['type'])
+            exit(1)
     else:
         print("ERROR: Block", index, "missing 'type'")
         exit(1)
-
-    # Set index
-    returnVal.id = int(index)
 
     # Check next
     if 'next' in blocks[index]:
