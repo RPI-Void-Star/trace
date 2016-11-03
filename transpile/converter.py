@@ -41,32 +41,32 @@ class ArduinoConverter(Converter):
 
     @parse.when_type(StartBlock)
     def parseStartBlock(block, space):
-        return (        'int main()\n' +
+        return (space + 'int main()\n' +
                 space + '{{\n' +
                 space + '  while (1)\n' +
                 space + '  {{\n' +
-                space + '    {0}\n' +
+                space + '{0}\n' +
                 space + '  }}\n' +
                 space + '}}\n').format(ArduinoConverter.parse(block.next, space + '    '))
 
     @parse.when_type(LoopBlock)
     def parseLoopBlock(block, space):
-        return (        'while ({0})\n' +
+        return (space + 'while ({0})\n' +
                 space + '{{\n' +
-                space + '  {1}\n' +
+                space + '{1}\n' +
                 space + '}}').format(
                     block.condition,
                     ArduinoConverter.parse(block.child, space + '  ')) + ArduinoConverter.parse(block.next, space + '  ')
 
     @parse.when_type(ConditionalBlock)
     def parseConditionalBlock(block, space):
-        return (        'if ({0})\n' +
+        return (space + 'if ({0})\n' +
                 space + '{{\n' +
-                space + '  {1}\n' +
+                space + '{1}\n' +
                 space + '}}\n' +
                 space + 'else\n' +
                 space + '{{\n' +
-                space + '  {2}\n' +
+                space + '{2}\n' +
                 space + '}}').format(
                     block.condition,
                     ArduinoConverter.parse(block.ifTrue, space + '  '),
