@@ -60,6 +60,8 @@ class Controller {
 
     document.getElementById('chart-container').addEventListener('click',
       () => this.unselectBlock(), false);
+
+    this.newProject();
   }
 
   initTemplateBlocks() {
@@ -84,8 +86,28 @@ class Controller {
   createBlock(blockType, x, y) {
     let block;
     switch (blockType) {
+      case 'start':
+        block = new blocks.StartBlock(x, y);
+        break;
       case 'loop':
         block = new blocks.LoopBlock(x, y);
+
+        block.element.addEventListener('drop', (event) => {
+          // Detects when blocks are dropped onto the loop and adds a copy of the block.
+          event.preventDefault();
+          event.stopPropagation();
+          // move dragged elem to the selected drop target
+
+          const type = blocks.TemplateBlock.dragged.getAttribute('data-type');
+          const child = this.createBlock(type, 'auto', 'auto');
+          block.children.push(child);
+          block.element.classList.add('full');
+          block.element.appendChild(child.element);
+
+          return false;
+        }, false);
+
+
         break;
       case 'conditional':
         block = new blocks.ConditionalBlock(x, y);
@@ -111,9 +133,13 @@ class Controller {
       }
 
       this.activeBlock = block;
-      block.element.getElementsByTagName('header')[0].addEventListener('mousedown',
-        this.enableMovingListener, false);
       block.toggleSelect();
+
+      // Enable moving only if block has absolute position.
+      if (x !== 'auto' && y !== 'auto') {
+        block.element.getElementsByTagName('header')[0].addEventListener('mousedown',
+          this.enableMovingListener, false);
+      }
 
       // Update config bar based on current selection.
       document.getElementById('config-bar')
@@ -175,9 +201,15 @@ class Controller {
  */
 
   newProject() {
-    if (window.confirm('Make a new project?\nYou will lose any unsaved work.')) {
+    if (this.canvas.blocks.length === 0 || window.confirm('Make a new project?\nYou will lose any unsaved work.')) {
       this.canvas.clear();
       this.fileSavePath = undefined;
+      const bounds = this.canvas.element.parentNode.getBoundingClientRect();
+      this.setProjectJSON(`{
+        "blocks": [
+            { "type": "start", "loc": { "x": ${(bounds.width / 2) - 100}, "y": ${(bounds.height / 2) - 40} } }
+      ]}`);
+      this.toggleConfigBar();
     }
   }
 
