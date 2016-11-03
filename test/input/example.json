@@ -1,10 +1,10 @@
 {
-    "blocks" : {
-        "0" : {
+    "blocks" : [
+        {
             "next" : 1,
             "type" : "start"
         },
-        "1" : {
+        {
             "next": null,
             "type": "loop",
             "attributes" : {
@@ -12,7 +12,7 @@
 				"child" : 2
             }
         },
-        "2" : {
+        {
             "next" : null,
             "type" : "conditional",
             "attributes" : {
@@ -23,5 +23,5 @@
                 }
             }
         }
-    }
+    ]
 }
