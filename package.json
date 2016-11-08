@@ -4,9 +4,10 @@
   "description": "A visual programming language for Arduino-like platforms.",
   "main": "index.js",
   "scripts": {
-    "test": "node ./node_modules/karma/bin/karma start karma.conf.js && node node_modules/mocha/bin/mocha test/src --recursive",
-    "lint": "node node_modules/eslint/bin/eslint.js .",
-    "lint-fix": "node node_modules/eslint/bin/eslint.js --fix .",
+    "test": "node ./node_modules/karma/bin/karma start karma.conf.js && node node_modules/mocha/bin/mocha test/src --recursive && pytest",
+    "lint-js": "node node_modules/eslint/bin/eslint.js .",
+    "lint-js-fix": "node node_modules/eslint/bin/eslint.js --fix .",
+    "lint-py": "pep8 --max-line-length=100 .",
     "start": "gulp start"
   },
   "repository": {

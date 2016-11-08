@@ -45,6 +45,7 @@ Thumbs.db
 # Python extras
 __pycache__
 *.pyc
+.cache
 
 # Personal config files
 .ycm_extra_conf.py
