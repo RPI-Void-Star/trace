@@ -13,10 +13,10 @@ class Canvas {
     this.w = 0;
     this.h = 0;
     this.blocks = [];
-    this.updateCanvas();
+    this.redrawCanvas();
   }
 
-  updateCanvas() {
+  redrawCanvas() {
     const bounds = this.element.getBoundingClientRect();
     this.w = bounds.width;
     this.h = bounds.height;
@@ -47,6 +47,53 @@ class Canvas {
     }
 
     ctx.stroke();
+  }
+
+  // Function from: http://stackoverflow.com/questions/808826/draw-arrow-on-canvas-tag#6333775
+  // Author: SteampunkWizard
+  drawArrow(startCoords, endCoords){
+    const { x: startx, y: starty } = startCoords
+    const { x: endx, y: endy } = endCoords
+    const lineWidth = 2
+
+    //variables to be used when creating the arrow
+    var ctx = this.element.getContext("2d");
+    var headlen = 10;
+
+    var angle = Math.atan2(endy-starty,endx-startx);
+
+    //starting path of the arrow from the start square to the end square and drawing the stroke
+    ctx.beginPath();
+    ctx.moveTo(startx, starty);
+    ctx.lineTo(endx, endy);
+    ctx.strokeStyle = "#cc0000";
+    ctx.lineWidth = lineWidth;
+    ctx.stroke();
+
+    //starting a new path from the head of the arrow to one of the sides of the point
+    ctx.beginPath();
+    ctx.moveTo(endx, endy);
+    ctx.lineTo(endx-headlen*Math.cos(angle-Math.PI/7),endy-headlen*Math.sin(angle-Math.PI/7));
+
+    //path from the side point of the arrow, to the other side point
+    ctx.lineTo(endx-headlen*Math.cos(angle+Math.PI/7),endy-headlen*Math.sin(angle+Math.PI/7));
+
+    //path from the side point back to the tip of the arrow, and then again to the opposite side point
+    ctx.lineTo(endx, endy);
+    ctx.lineTo(endx-headlen*Math.cos(angle-Math.PI/7),endy-headlen*Math.sin(angle-Math.PI/7));
+
+    //draws the paths created above
+    ctx.strokeStyle = "#cc0000";
+    ctx.lineWidth = lineWidth;
+    ctx.stroke();
+    ctx.fillStyle = "#cc0000";
+    ctx.fill();
+  }
+
+  // Clear drawings from canvas
+  clearCanvas() {
+    const ctx = this.element.getContext("2d")
+    ctx.clearRect(0, 0, this.element.width, this.element.height)
   }
 
   addBlock(block) {
