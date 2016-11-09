@@ -201,6 +201,7 @@ class Controller {
       this.moveListener = (e) => {
         if (e.buttons === 1) this.activeBlock.updatePosition(newX(e), newY(e));
         else this.disableMoving();
+        this.canvas.redraw()
       };
 
       document.getElementById('chart-container').addEventListener('mousemove', this.moveListener);
@@ -235,6 +236,7 @@ class Controller {
         x: this.activeBlock.loc.x + blockBounds.width/2,
         y: this.activeBlock.loc.y + blockBounds.height/2,
       }
+      const startBlock = this.activeBlock
 
       const endX = e => e.pageX - cvs.getBoundingClientRect().left;
       const endY = e => e.pageY - cvs.getBoundingClientRect().top;
@@ -242,8 +244,7 @@ class Controller {
       this.connectionListener = (e) => {
         if (e.buttons === 1 && !this.pendingFrame) {
             this.pendingFrame = true
-            this.canvas.clearCanvas()
-            this.canvas.redrawCanvas()
+            this.canvas.redraw()
             window.requestAnimationFrame( _ => {
               this.canvas.drawArrow(
                   startPos,
@@ -252,7 +253,16 @@ class Controller {
               this.pendingFrame = false
             })
         }
-        //else this.disableConnection();
+        else {
+            if (e.target.classList.contains("block") && !e.target.classList.contains("template")){
+                const targetBlock = this.canvas.getBlockForElement(e.target)
+                if (targetBlock !== startBlock && startBlock){
+                    startBlock.next = targetBlock.uid
+                }
+                this.disableConnection()
+            }
+            this.canvas.redraw()
+        }
       };
 
       document.getElementById('chart-container').addEventListener('mousemove', this.connectionListener);
@@ -318,6 +328,7 @@ class Controller {
         // Redraw the canvas
         this.canvas.clear();
         this.setProjectJSON(rawjson);
+        this.canvas.redraw();
       } else throw res.err;
     }
   }

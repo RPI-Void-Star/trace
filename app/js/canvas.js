@@ -13,20 +13,20 @@ class Canvas {
     this.w = 0;
     this.h = 0;
     this.blocks = [];
-    this.redrawCanvas();
+    this.redraw();
   }
 
-  redrawCanvas() {
+  drawGrid() {
     const bounds = this.element.getBoundingClientRect();
     this.w = bounds.width;
     this.h = bounds.height;
     this.element.width = this.w;
     this.element.height = this.h;
-    this.drawGrid(this.w / 100, 'rgba(255, 255, 255, .5)');
-    this.drawGrid(this.w / 50);
+    this.drawLines(this.w / 100, 'rgba(255, 255, 255, .5)');
+    this.drawLines(this.w / 50);
   }
 
-  drawGrid(numLines, color, width) {
+  drawLines(numLines, color, width) {
     const ctx = this.element.getContext('2d');
     ctx.beginPath();
     ctx.strokeStyle = color || 'rgba(255, 255, 255, .75)';
@@ -90,6 +90,25 @@ class Canvas {
     ctx.fill();
   }
 
+  // Draw all grids and block connections
+  redraw() {
+    this.clearCanvas()
+    this.drawGrid()
+    const getCenter = (block) => ({
+        x: block.loc.x + block.element.getBoundingClientRect().width/2,
+        y: block.loc.y + block.element.getBoundingClientRect().height/2
+    })
+
+    this.blocks.forEach( block => {
+      if (block.next)
+        this.drawArrow(
+          getCenter(block),
+          getCenter(this.blocks[block.next])
+        )
+    })
+  }
+
+
   // Clear drawings from canvas
   clearCanvas() {
     const ctx = this.element.getContext("2d")
@@ -101,6 +120,10 @@ class Canvas {
     this.blocks.push(block);
   }
 
+  getBlockForElement(elm){
+    return this.blocks.find( block => block.element === elm )
+  }
+
   clearBlockHighlight() {
     this.blocks.forEach(block => block.removeHighlight());
   }
@@ -108,6 +131,7 @@ class Canvas {
   clear() {
     this.blocks.forEach(block => block.element.remove());
     this.blocks = [];
+    this.redraw()
   }
 }
 module.exports = Canvas;
