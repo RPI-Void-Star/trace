@@ -218,6 +218,58 @@ class Controller {
   }
 
 /*
+ * Block Connections
+ */
+
+  enableConnection() {
+    // Don't allow another listener to be added if block is already moving.
+    if (!this.connectionListener && this.activeBlock) {
+      // Although nasty it is important to leave these as funcitons so they
+      //   update when the mouse moves this allows tracking even when the
+      //   user scrolls, otherwise we take a snapshot of the offsets with
+      //   the current scroll bounds which leads to incorrect movement.
+      const cvs = this.canvas.element;
+      // Since the block bounds doesn't change we don't need to worry about that here.
+      const blockBounds = this.activeBlock.element.getBoundingClientRect();
+      const startPos = {
+        x: this.activeBlock.loc.x + blockBounds.width/2,
+        y: this.activeBlock.loc.y + blockBounds.height/2,
+      }
+
+      const endX = e => e.pageX - cvs.getBoundingClientRect().left;
+      const endY = e => e.pageY - cvs.getBoundingClientRect().top;
+
+      this.connectionListener = (e) => {
+        if (e.buttons === 1 && !this.pendingFrame) {
+            this.pendingFrame = true
+            this.canvas.clearCanvas()
+            this.canvas.redrawCanvas()
+            window.requestAnimationFrame( _ => {
+              this.canvas.drawArrow(
+                  startPos,
+                  { x: endX(e), y: endY(e) }
+              )
+              this.pendingFrame = false
+            })
+        }
+        //else this.disableConnection();
+      };
+
+      document.getElementById('chart-container').addEventListener('mousemove', this.connectionListener);
+    } else {
+      console.log(`Attempted to connect block that was already being connected, or when one wasn't selected: ${
+        JSON.stringify(this)}`);
+    }
+    
+  }
+
+  disableConnection() {
+    document.getElementById('chart-container').removeEventListener('mousemove', this.connectionListener);
+    this.connectionListener = undefined;
+  }
+
+
+/*
  * Project Management
  */
 
