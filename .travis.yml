@@ -7,14 +7,17 @@ addons:
   apt:
     packages:
       - xvfb
+      - python3
 
 install:
   - export DISPLAY=':99.0'
   - Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+  - sudo pip install -r requirements.txt
 
 before_script:
   - npm install
-  - npm run lint
+  - npm run lint-js
+  - npm run lint-py
 
 script:
   - npm test

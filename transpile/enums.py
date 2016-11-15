@@ -1,6 +1,7 @@
 #! /usr/bin/python3
 from enum import Enum
 
+
 class PinValue(Enum):
     """An enum that represents the logical states that a digital pin can be in"""
     low = 0
