@@ -11,7 +11,7 @@ import json
 
 
 class Transpiler():
-    """he class that handles file loading and compilation/uploading"""
+    """The class that handles file loading and compilation/uploading"""
     def __init__(self, inputFile, port):
         self._inputFile = inputFile
         self._cFile = 'test.c'         # TODO generate this name
@@ -21,7 +21,7 @@ class Transpiler():
         self._converter = ArduinoConverter(self._inputFile, self._cFile)
 
     def transpile(self):
-        """ranspiles the given input file, uploading it via avrdude to the given port"""
+        """Transpiles the given input file, uploading it via avrdude to the given port"""
         self.__load()
         self.__convert()
         self.__compile()
@@ -29,13 +29,13 @@ class Transpiler():
         # TODO return an error if any are encountered
 
     def __upload(self):
-        """ploads the binary file to the Arduino on the given port with avrdude"""
+        """Uploads the binary file to the Arduino on the given port with avrdude"""
         # Execute avrdude to upload the Intel hex file to the Arduino
         subprocess.call('avrdude -p m328p -P {0} -c arduino -b 19200 -F -u -U flash:w:{1}'
                         .format(self._port, self._binaryFile))
 
     def __compile(self):
-        """ompiles the given Arduino C file to a binary file using avr-g++"""
+        """Compiles the given Arduino C file to a binary file using avr-g++"""
         # Compile c file into a temporary object file
         subprocess.call('avr-g++ {0} -mmcu=atmega328p -c -o temp.o -Os'.format(self._cFile,
                                                                                self._binaryFile))
@@ -48,11 +48,11 @@ class Transpiler():
             pass
 
     def __convert(self):
-        """onverts the user's block diagram to C code using the appropriate Converter"""
+        """Converts the user's block diagram to C code using the appropriate Converter"""
         self._converter.convert(self._rootBlock)
 
     def __load(self):
-        """oads the input file and saves the root block"""
+        """Loads the input file and saves the root block"""
         self._rootBlock = load(self._inputFile)
 
 
@@ -83,7 +83,7 @@ def createBlock(blockDictionary, index):
 
 
 def loadBlockArray(blockDictionary):
-    """reates blocks corresponding to those in the dictionary with their default atributes"""
+    """Creates blocks corresponding to those in the dictionary with their default atributes"""
     blockArray = [None] * len(blockDictionary)
     for index in range(0, len(blockDictionary)):
         curDict = blockDictionary[index]
@@ -93,7 +93,7 @@ def loadBlockArray(blockDictionary):
 
 
 def populateAttributes(blockDictionary, blocks):
-    """opulates the attributes of the blocks from the dictionary"""
+    """Populates the attributes of the blocks from the dictionary"""
     for index in range(0, len(blockDictionary)):
         curDict = blockDictionary[index]
         curBlock = blocks[index]
