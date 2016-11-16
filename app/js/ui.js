@@ -107,7 +107,6 @@ class Controller {
           return false;
         }, false);
 
-
         break;
       case 'conditional':
         block = new blocks.ConditionalBlock(x, y);
@@ -175,6 +174,16 @@ class Controller {
     selectBlock();
     return block;
   }
+
+  // If the active block is not the start block tell the canvas
+  //   to delete it
+  deleteBlock() {
+    if (this.activeBlock && this.activeBlock.uid !== 0) {
+        this.canvas.removeBlock(this.activeBlock)
+        this.canvas.redraw()
+    }
+  }
+  
 
   toggleConfigBar() {
     this.configBarActive = !this.configBarActive;
@@ -289,9 +298,9 @@ class Controller {
       this.fileSavePath = undefined;
       const bounds = this.canvas.element.parentNode.getBoundingClientRect();
       this.setProjectJSON(`{
-        "blocks": [
-            { "type": "start", "loc": { "x": ${(bounds.width / 2) - 100}, "y": ${(bounds.height / 2) - 40} } }
-      ]}`);
+        "blocks": {
+            "0": { "type": "start", "loc": { "x": ${(bounds.width / 2) - 100}, "y": ${(bounds.height / 2) - 40} } }
+      }}`);
       this.toggleConfigBar();
     }
   }
@@ -302,13 +311,14 @@ class Controller {
 
   setProjectJSON(json) {
     const newChart = JSON.parse(json);
-    newChart.blocks.forEach((block) => {
+    for (let key in newChart.blocks) {
+      const block = newChart.blocks[key]
       const template = document.querySelector(`.template[data-type="${block.type}"`);
       blocks.TemplateBlock.dragged = template;
       const newBlock = this.createBlock(block.type, block.loc.x, block.loc.y);
       newBlock.attributes = block.attributes;
       newBlock.next = block.next;
-    });
+    }
   }
 
   openProject() {

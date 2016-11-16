@@ -83,12 +83,17 @@ class Block {
       throw new TypeError('Cannot construct Block instances directly');
     }
     this.uid = Block.uid++;
-    this.loc = { x, y };
     this.next = null;
     this.element = TemplateBlock.dragged.cloneNode(true);
     if (x !== 'auto' && y !== 'auto') {
+      this.loc = {
+        x: x - TemplateBlock.draggedOffset.x,
+        y: y - TemplateBlock.draggedOffset.y
+      };
       setPositionToCoords(this.element, x - TemplateBlock.draggedOffset.x,
         y - TemplateBlock.draggedOffset.y);
+    } else {
+      this.loc = { x: 'auto', y: 'auto' };
     }
     this.element.classList.remove('template');
     this.element.addEventListener('dragstart', Block.dragStart);
