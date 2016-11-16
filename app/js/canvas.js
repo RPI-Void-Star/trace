@@ -12,7 +12,7 @@ class Canvas {
     this.container = container;
     this.w = 0;
     this.h = 0;
-    this.blocks = [];
+    this.blocks = {};
     this.redraw();
   }
 
@@ -99,13 +99,14 @@ class Canvas {
         y: block.loc.y + block.element.getBoundingClientRect().height/2
     })
 
-    this.blocks.forEach( block => {
+    for (let key in this.blocks) {
+      const block = this.blocks[key]
       if (block.next)
         this.drawArrow(
           getCenter(block),
           getCenter(this.blocks[block.next])
         )
-    })
+    }
   }
 
 
@@ -116,21 +117,46 @@ class Canvas {
   }
 
   addBlock(block) {
+    // If there are no blocks, make the first block have an id of new
     this.container.appendChild(block.element);
-    this.blocks.push(block);
+    this.blocks[block.uid] = block;
+  }
+
+  removeBlock(block) {
+    let keyToKill
+
+    //TODO KILL LOOPS if (block.type === "loop") { block.children.forEach( childID => keysToKill.push(childID) ) }
+    for (let key in this.blocks) {
+      // If a block is referring to the block we are deleting
+      //  remove the reference
+      if ( this.blocks[ this.blocks[key].next ] === block )
+        this.blocks[key].next = undefined
+    }
+
+    block.element.remove()
+    delete this.blocks[block.uid]
+    this.redraw()
   }
 
   getBlockForElement(elm){
-    return this.blocks.find( block => block.element === elm )
+    for (let key in this.blocks)
+      if (this.blocks[key].element === elm)
+        return this.blocks[key]
   }
 
   clearBlockHighlight() {
-    this.blocks.forEach(block => block.removeHighlight());
+    for (let key in this.blocks) {
+      const block = this.blocks[key]
+      block.removeHighlight();
+    }
   }
 
   clear() {
-    this.blocks.forEach(block => block.element.remove());
-    this.blocks = [];
+    for (let key in this.blocks) {
+      const block = this.blocks[key]
+      block.element.remove();
+    }
+    this.blocks = {};
     this.redraw()
   }
 }
