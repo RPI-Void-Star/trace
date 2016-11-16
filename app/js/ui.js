@@ -141,10 +141,31 @@ class Controller {
           this.enableMovingListener, false);
       }
 
+      // Remove the old config from view
+      const configContainer = document.getElementById('config-bar')
+          .getElementsByTagName('content')[0];
+      while (configContainer.firstChild) {
+        configContainer.removeChild(configContainer.firstChild);
+      }
       // Update config bar based on current selection.
-      document.getElementById('config-bar')
-        .getElementsByTagName('content')[0]
-        .innerHTML = this.activeBlock.getParamsMeta();
+      const params = this.activeBlock.getParamsMeta();
+      Object.keys(params).forEach((key) => {
+        const container = document.createElement('div');
+        container.classList.add('param');
+        const label = document.createElement('label');
+        const id = `block-${this.activeBlock.uid}-${key}`;
+        label.setAttribute('for', id);
+        label.innerText = key;
+        const input = document.createElement('input');
+        input.setAttribute('id', id);
+        input.setAttribute('value', params[key] || '');
+        input.addEventListener('change', () => {
+          this.activeBlock.setParam(key, input.value);
+        });
+        container.appendChild(label);
+        container.appendChild(input);
+        configContainer.appendChild(container);
+      });
     };
 
     block.element.addEventListener('click', selectBlock, false);
