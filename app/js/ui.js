@@ -115,6 +115,12 @@ class Controller {
       case 'variable':
         block = new blocks.VariableBlock(x, y);
         break;
+      case 'pin_write':
+        block = new blocks.PinWriteBlock(x, y);
+        break;
+      case 'pin_read':
+        block = new blocks.PinReadBlock(x, y);
+        break;
       default:
         throw new TypeError(`Unrecognized block type: ${JSON.stringify(blockType)}`);
     }

@@ -251,3 +251,67 @@ class VariableBlock extends Block {
 
 }
 module.exports.VariableBlock = VariableBlock;
+
+
+class PinWriteBlock extends Block {
+
+  constructor(x, y) {
+    super(x, y);
+    this.type = 'pin_write';
+    this.pin = null;
+    this.value = null;
+  }
+
+  getParamsMeta() {
+    return {
+      pin: this.pin,
+      value: this.value,
+    };
+  }
+
+  toJSON() {
+    return {
+      next: this.next,
+      type: this.type,
+      loc: this.loc,
+      attributes: {
+        pin: this.pin,
+        value: this.value,
+      },
+    };
+  }
+
+}
+module.exports.PinWriteBlock = PinWriteBlock;
+
+
+class PinReadBlock extends Block {
+
+  constructor(x, y) {
+    super(x, y);
+    this.type = 'pin_read';
+    this.pin = null;
+    this.var = null;
+  }
+
+  getParamsMeta() {
+    return {
+      pin: this.pin,
+      var: this.var,
+    };
+  }
+
+  toJSON() {
+    return {
+      next: this.next,
+      type: this.type,
+      loc: this.loc,
+      attributes: {
+        pin: this.pin,
+        var: this.var,
+      },
+    };
+  }
+
+}
+module.exports.PinReadBlock = PinReadBlock;
