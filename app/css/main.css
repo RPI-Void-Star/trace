@@ -93,6 +93,18 @@ body > aside {
     -webkit-transition: opacity 1s;
     transition: opacity 1s;
     opacity: 0;
+    display: none;
+    padding: 50px 20px 0 0;
+    text-align: right;
+}
+
+#config-bar content .param {
+    margin-top: 5px;
+}
+
+#config-bar content .param label {
+    font-weight: bold;
+    margin-right: 5px;
 }
 
 .show-config-bar #config-bar {
@@ -100,6 +112,7 @@ body > aside {
 }
 .show-config-bar #config-bar content {
     opacity: 1;
+    display: block;
 }
 
 

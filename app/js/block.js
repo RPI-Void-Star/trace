@@ -116,11 +116,8 @@ class Block {
     throw new TypeError(`Block ${this.uid}: Not implemented`);
   }
 
-  /**
-   * @virtual
-   */
-  setParams() {
-    throw new TypeError(`Block ${this.uid}: Not implemented`);
+  setParam(param, value) {
+    this[param] = value;
   }
 
   /**
@@ -147,7 +144,7 @@ Block.dragStart = (event) => {
 class StartBlock extends Block {
 
   getParamsMeta() {
-    return `Block ${this.uid}: Pass start and collect $200.`;
+    return {};
   }
 
   toJSON() {
@@ -167,18 +164,21 @@ class LoopBlock extends Block {
 
   constructor(x, y) {
     super(x, y);
+    this.type = 'loop';
     this.children = [];
-    this.variable = null;
+    this.condition = null;
   }
 
   getParamsMeta() {
-    return `Block ${this.uid}: loop loop!`;
+    return {
+      condition: this.condition,
+    };
   }
 
   toJSON() {
     return {
       next: this.next,
-      type: 'loop',
+      type: this.type,
       loc: this.loc,
       attributes: {
         children: this.children,
@@ -194,22 +194,27 @@ class ConditionalBlock extends Block {
 
   constructor(x, y) {
     super(x, y);
-    this.variable = null;
+    this.type = 'conditional';
+    this.condition = null;
     this.onTrue = null;
     this.onFalse = null;
   }
 
   getParamsMeta() {
-    return `Block ${this.uid}: conditionaaal`;
+    return {
+      condition: this.condition,
+      onTrue: this.onTrue,
+      onFalse: this.onFalse,
+    };
   }
 
   toJSON() {
     return {
       next: this.next,
-      type: 'conditional',
+      type: this.type,
       loc: this.loc,
       attributes: {
-        condition: this.variable,
+        condition: this.condition,
         children: {
           true: this.onTrue,
           false: this.onFalse,
