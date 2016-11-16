@@ -31,6 +31,22 @@ class Controller {
     document.getElementById('new-project').addEventListener('click', () => this.newProject(), false);
     document.getElementById('open-project').addEventListener('click', () => this.openProject(), false);
     document.getElementById('save-project').addEventListener('click', () => this.saveProject(), false);
+
+    // Keyboard listener
+    document.body.addEventListener('keydown', e => {
+        switch (e.keyCode){
+            // When the user pressed delete
+            case 8:
+            case 127:
+                this.deleteBlock()
+                break
+
+            // When the user pressed 'c'
+            case 67:
+                this.enableConnection()
+                break
+        }
+    })
   }
 
   initCanvas() {
