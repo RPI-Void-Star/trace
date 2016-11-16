@@ -6,7 +6,10 @@
 
 
 class TemplateBlock {
-
+  /**
+   * TemplateBlock represents a template from which to create a real block.
+   * @param element {Element} a reference to element in the DOM that holds the template block
+   */
   constructor(element) {
     this.uid = TemplateBlock.uid++;
     this.element = element;
@@ -14,12 +17,23 @@ class TemplateBlock {
     this.element.addEventListener('dragend', TemplateBlock.dragEnd, false);
     this.element.addEventListener('dragover', TemplateBlock.dragOver, false);
   }
-
 }
 module.exports.TemplateBlock = TemplateBlock;
 
+/**
+ * Maintains a count of the number of TemplateBlocks created
+ * @static
+ */
 TemplateBlock.uid = 0;
+/**
+ * A reference to the TemplateBlock Element that is currently being dragged
+ * @static
+ */
 TemplateBlock.dragged = undefined;
+/**
+ * Tracks the offset from dragging a TemplateBlock
+ * @static
+ */
 TemplateBlock.draggedOffset = { x: 0, y: 0 };
 
 /**
@@ -37,6 +51,7 @@ TemplateBlock.dragStart = (event) => {
 };
 
 /**
+ * Reset the static variables when the drag event finishes
  * @static
  */
 TemplateBlock.dragEnd = () => {
@@ -46,7 +61,9 @@ TemplateBlock.dragEnd = () => {
 };
 
 /**
+ * Prevents a block from being dragged over another block
  * @static
+ * @returns {bool}
  */
 TemplateBlock.dragOver = (event) => {
   event.preventDefault();
@@ -55,6 +72,12 @@ TemplateBlock.dragOver = (event) => {
 };
 
 
+/**
+ * Helper function to update the position of a block
+ * @param node {Element} a reference to block to move
+ * @param x {int} location on the x-axis in pixels
+ * @param y {int} location on the y-axis in pixels
+ */
 const setPositionToCoords = (node, x, y) => {
   // Ignore updates to auto positioned nodes, throw error
   //  if position is not a number.
@@ -77,7 +100,12 @@ const setPositionToCoords = (node, x, y) => {
  * @abstract
  */
 class Block {
-
+  /**
+   * Create a new Block object
+   * @param x {int} location on the x-axis
+   * @param y {int} location on the y-axis
+   * @throws {TypeError} if a Block is directly instantiated
+   */
   constructor(x, y) {
     if (new.target === Block) {
       throw new TypeError('Cannot construct Block instances directly');
@@ -94,14 +122,25 @@ class Block {
     this.element.addEventListener('dragstart', Block.dragStart);
   }
 
+  /**
+   * Toggle the 'active' class on the block
+   */
   toggleSelect() {
     this.element.classList.toggle('active');
   }
 
+  /**
+   * Removes the 'active' class on the block
+   */
   removeHighlight() {
     this.element.classList.remove('active');
   }
 
+  /**
+   * Update the block's position in the DOM
+   * @param x {int} new location on the x-axis
+   * @param y {int} new location on the y-axis
+   */
   updatePosition(x, y) {
     this.element.style.position = 'absolute';
     this.element.style.top = `${y}px`;
@@ -110,27 +149,39 @@ class Block {
   }
 
   /**
+   * Returns the names and current values of the parameters for the block
+   * @throws {TypeError} if this method is not implemented in a subclass
    * @virtual
    */
   getParamsMeta() {
     throw new TypeError(`Block ${this.uid}: Not implemented`);
   }
 
+  /**
+   * Sets a parameter to a value
+   * @param param {string} name of the parameter
+   * @param value {string} value to the paramter to
+   */
   setParam(param, value) {
     this[param] = value;
   }
 
   /**
+   * Returns an object representating the current state of the Block
+   * @throws {TypeError} if this method is not implemented in a subclass
    * @virtual
+   * @returns {Object} representation of the Block
    */
   toJSON() {
     throw new TypeError(`Block ${this.uid}: Not implemented`);
   }
-
 }
-
 module.exports.Block = Block;
 
+/**
+ * Counts the number of Blocks to give each one a unique id
+ * @static
+ */
 Block.uid = 0;
 
 /**
@@ -141,12 +192,22 @@ Block.dragStart = (event) => {
   // Add ability to link blocks from here later.
 };
 
-class StartBlock extends Block {
 
+/**
+ * Represents a starting block
+ * @extends {Block}
+ */
+class StartBlock extends Block {
+  /**
+   * @returns {Object} the names and current values of the parameters
+   */
   getParamsMeta() {
     return {};
   }
 
+  /**
+   * @returns {Object} a representation of the current state of the block
+   */
   toJSON() {
     return {
       next: this.next,
@@ -156,12 +217,16 @@ class StartBlock extends Block {
       },
     };
   }
-
 }
 module.exports.StartBlock = StartBlock;
 
-class LoopBlock extends Block {
 
+class LoopBlock extends Block {
+  /**
+   * Represents a loop block
+   * @param x {int} location on the x-axis
+   * @param y {int} location on the y-axis
+   */
   constructor(x, y) {
     super(x, y);
     this.type = 'loop';
@@ -169,12 +234,18 @@ class LoopBlock extends Block {
     this.condition = null;
   }
 
+  /**
+   * @returns {Object} the names and current values of the parameters
+   */
   getParamsMeta() {
     return {
       condition: this.condition,
     };
   }
 
+  /**
+   * @returns {Object} a representation of the current state of the block
+   */
   toJSON() {
     return {
       next: this.next,
@@ -185,13 +256,16 @@ class LoopBlock extends Block {
       },
     };
   }
-
 }
 module.exports.LoopBlock = LoopBlock;
 
 
 class ConditionalBlock extends Block {
-
+  /**
+   * Represents a conditional block
+   * @param x {int} location on the x-axis
+   * @param y {int} location on the y-axis
+   */
   constructor(x, y) {
     super(x, y);
     this.type = 'conditional';
@@ -200,6 +274,9 @@ class ConditionalBlock extends Block {
     this.onFalse = null;
   }
 
+  /**
+   * @returns {Object} the names and current values of the parameters
+   */
   getParamsMeta() {
     return {
       condition: this.condition,
@@ -208,6 +285,9 @@ class ConditionalBlock extends Block {
     };
   }
 
+  /**
+   * @returns {Object} a representation of the current state of the block
+   */
   toJSON() {
     return {
       next: this.next,
@@ -222,24 +302,33 @@ class ConditionalBlock extends Block {
       },
     };
   }
-
 }
 module.exports.ConditionalBlock = ConditionalBlock;
 
 
 class VariableBlock extends Block {
-
+  /**
+   * Represents a variable block
+   * @param x {int} location on the x-axis
+   * @param y {int} location on the y-axis
+   */
   constructor(x, y) {
     super(x, y);
     this.name = null;
   }
 
+  /**
+   * @returns {Object} the names and current values of the parameters
+   */
   getParamsMeta() {
     return {
       name: this.name,
     };
   }
 
+  /**
+   * @returns {Object} a representation of the current state of the block
+   */
   toJSON() {
     return {
       next: this.next,
@@ -250,13 +339,16 @@ class VariableBlock extends Block {
       },
     };
   }
-
 }
 module.exports.VariableBlock = VariableBlock;
 
 
 class PinWriteBlock extends Block {
-
+  /**
+   * Represents a pin write block
+   * @param x {int} location on the x-axis
+   * @param y {int} location on the y-axis
+   */
   constructor(x, y) {
     super(x, y);
     this.type = 'pin_write';
@@ -264,6 +356,9 @@ class PinWriteBlock extends Block {
     this.value = null;
   }
 
+  /**
+   * @returns {Object} the names and current values of the parameters
+   */
   getParamsMeta() {
     return {
       pin: this.pin,
@@ -271,6 +366,9 @@ class PinWriteBlock extends Block {
     };
   }
 
+  /**
+   * @returns {Object} a representation of the current state of the block
+   */
   toJSON() {
     return {
       next: this.next,
@@ -282,13 +380,16 @@ class PinWriteBlock extends Block {
       },
     };
   }
-
 }
 module.exports.PinWriteBlock = PinWriteBlock;
 
 
 class PinReadBlock extends Block {
-
+  /**
+   * Represents a pin read block
+   * @param x {int} location on the x-axis
+   * @param y {int} location on the y-axis
+   */
   constructor(x, y) {
     super(x, y);
     this.type = 'pin_read';
@@ -296,6 +397,9 @@ class PinReadBlock extends Block {
     this.var = null;
   }
 
+  /**
+   * @returns {Object} the names and current values of the parameters
+   */
   getParamsMeta() {
     return {
       pin: this.pin,
@@ -303,6 +407,9 @@ class PinReadBlock extends Block {
     };
   }
 
+  /**
+   * @returns {Object} a representation of the current state of the block
+   */
   toJSON() {
     return {
       next: this.next,
@@ -314,25 +421,34 @@ class PinReadBlock extends Block {
       },
     };
   }
-
 }
 module.exports.PinReadBlock = PinReadBlock;
 
 
 class CodeBlock extends Block {
-
+  /**
+   * Represents a code block
+   * @param x {int} location on the x-axis
+   * @param y {int} location on the y-axis
+   */
   constructor(x, y) {
     super(x, y);
     this.type = 'code';
     this.code = null;
   }
 
+  /**
+   * @returns {Object} the names and current values of the parameters
+   */
   getParamsMeta() {
     return {
       code: this.code,
     };
   }
 
+  /**
+   * @returns {Object} a representation of the current state of the block
+   */
   toJSON() {
     return {
       next: this.next,
@@ -343,25 +459,34 @@ class CodeBlock extends Block {
       },
     };
   }
-
 }
 module.exports.CodeBlock = CodeBlock;
 
 
 class SleepBlock extends Block {
-
+  /**
+   * Represents a sleep block
+   * @param x {int} location on the x-axis
+   * @param y {int} location on the y-axis
+   */
   constructor(x, y) {
     super(x, y);
     this.type = 'sleep';
     this.length = null;
   }
 
+  /**
+   * @returns {Object} the names and current values of the parameters
+   */
   getParamsMeta() {
     return {
       length: this.length,
     };
   }
 
+  /**
+   * @returns {Object} a representation of the current state of the block
+   */
   toJSON() {
     return {
       next: this.next,
@@ -372,6 +497,5 @@ class SleepBlock extends Block {
       },
     };
   }
-
 }
 module.exports.SleepBlock = SleepBlock;
