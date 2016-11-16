@@ -231,11 +231,13 @@ class VariableBlock extends Block {
 
   constructor(x, y) {
     super(x, y);
-    this.value = null;
+    this.name = null;
   }
 
   getParamsMeta() {
-    return `Block ${this.uid}: variable?!`;
+    return {
+      name: this.name,
+    };
   }
 
   toJSON() {
@@ -244,7 +246,7 @@ class VariableBlock extends Block {
       type: 'variable',
       loc: this.loc,
       attributes: {
-        value: this.value,
+        name: this.name,
       },
     };
   }
@@ -315,3 +317,61 @@ class PinReadBlock extends Block {
 
 }
 module.exports.PinReadBlock = PinReadBlock;
+
+
+class CodeBlock extends Block {
+
+  constructor(x, y) {
+    super(x, y);
+    this.type = 'code';
+    this.code = null;
+  }
+
+  getParamsMeta() {
+    return {
+      code: this.code,
+    };
+  }
+
+  toJSON() {
+    return {
+      next: this.next,
+      type: this.type,
+      loc: this.loc,
+      attributes: {
+        code: this.code,
+      },
+    };
+  }
+
+}
+module.exports.CodeBlock = CodeBlock;
+
+
+class SleepBlock extends Block {
+
+  constructor(x, y) {
+    super(x, y);
+    this.type = 'sleep';
+    this.length = null;
+  }
+
+  getParamsMeta() {
+    return {
+      length: this.length,
+    };
+  }
+
+  toJSON() {
+    return {
+      next: this.next,
+      type: this.type,
+      loc: this.loc,
+      attributes: {
+        length: this.length,
+      },
+    };
+  }
+
+}
+module.exports.SleepBlock = SleepBlock;

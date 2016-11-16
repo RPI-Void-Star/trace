@@ -121,6 +121,12 @@ class Controller {
       case 'pin_read':
         block = new blocks.PinReadBlock(x, y);
         break;
+      case 'code':
+        block = new blocks.CodeBlock(x, y);
+        break;
+      case 'sleep':
+        block = new blocks.SleepBlock(x, y);
+        break;
       default:
         throw new TypeError(`Unrecognized block type: ${JSON.stringify(blockType)}`);
     }
