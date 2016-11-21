@@ -10,6 +10,7 @@ addons:
   apt:
     packages:
       - xvfb
+      - python3-serial
 
 before_install:
   - rm -rf ~/.nvm
