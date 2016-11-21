@@ -28,4 +28,4 @@ if __name__ == '__main__':
         while(True):
             to_stdout = testCOMPort.ser.read(4096)
             if to_stdout:
-                print(to_stdout.decode(), end = '')
+                print(to_stdout.decode(), end='')

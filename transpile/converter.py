@@ -99,8 +99,7 @@ def parseSleepBlock(block, space):
 
 @parse.when_type(CodeBlock)
 def parseCodeBlock(block, space):
-    return (space + block.code + ';\n' +
-                    '{0}').format(parse(block.next, space))
+    return (space + block.code + ';\n' + '{0}').format(parse(block.next, space))
 
 
 @parse.when_type(VariableBlock)
