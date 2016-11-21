@@ -129,8 +129,9 @@ body > .half { height: calc( 50% - 25px ); }
 
 #chart-container,
 #chart-canvas {
-    height: 200vw;
-    width: 200vw;
+    height: 5000px;
+    width: 5000px;
+    overflow: hidden;
     position: absolute;
     top: 0px;
 }
@@ -186,6 +187,11 @@ ul li {
     color: #333;        
     padding: 5px;
     text-align: center;
+}
+.block header::after{
+    content: attr(data-count);
+    float: right;
+    color: #777;
 }
 .block.active header { cursor: move; }
 

@@ -111,13 +111,19 @@ class Block {
     if (new.target === Block) {
       throw new TypeError('Cannot construct Block instances directly');
     }
+    this.shouldConnect = true;
     this.uid = Block.uid++;
-    this.loc = { x, y };
     this.next = null;
     this.element = TemplateBlock.dragged.cloneNode(true);
     if (x !== 'auto' && y !== 'auto') {
+      this.loc = {
+        x: x - TemplateBlock.draggedOffset.x,
+        y: y - TemplateBlock.draggedOffset.y,
+      };
       setPositionToCoords(this.element, x - TemplateBlock.draggedOffset.x,
         y - TemplateBlock.draggedOffset.y);
+    } else {
+      this.loc = { x: 'auto', y: 'auto' };
     }
     this.element.classList.remove('template');
     this.element.addEventListener('dragstart', Block.dragStart);
@@ -165,6 +171,11 @@ class Block {
    */
   setParam(param, value) {
     this[param] = value;
+  }
+
+  fromJSON(json) {
+    this.attributes = json.attributes;
+    this.next = json.next;
   }
 
   /**
@@ -244,6 +255,13 @@ class LoopBlock extends Block {
     };
   }
 
+  fromJSON(json) {
+    this.attributes = json.attributes;
+    this.next = json.next;
+    this.condition = json.attributes.condition;
+    this.children = json.attributes.children;
+  }
+
   /**
    * @returns {Object} a representation of the current state of the block
    */
@@ -253,6 +271,7 @@ class LoopBlock extends Block {
       type: this.type,
       loc: this.loc,
       attributes: {
+        condition: this.condition,
         children: this.children,
       },
     };
@@ -273,6 +292,7 @@ class ConditionalBlock extends Block {
     this.condition = null;
     this.onTrue = null;
     this.onFalse = null;
+    this.shouldConnect = false;
   }
 
   /**
@@ -284,6 +304,14 @@ class ConditionalBlock extends Block {
       onTrue: this.onTrue,
       onFalse: this.onFalse,
     };
+  }
+
+  fromJSON(json) {
+    this.attributes = json.attributes;
+    this.next = json.next;
+    this.condition = json.attributes.condition;
+    this.onTrue = json.attributes.children.true;
+    this.onFalse = json.attributes.children.false;
   }
 
   /**
@@ -327,6 +355,12 @@ class VariableBlock extends Block {
     };
   }
 
+  fromJSON(json) {
+    this.attributes = json.attributes;
+    this.next = json.next;
+    this.name = json.attributes.name;
+  }
+
   /**
    * @returns {Object} a representation of the current state of the block
    */
@@ -365,6 +399,13 @@ class PinWriteBlock extends Block {
       pin: this.pin,
       value: this.value,
     };
+  }
+
+  fromJSON(json) {
+    this.attributes = json.attributes;
+    this.next = json.next;
+    this.pin = json.attributes.pin;
+    this.value = json.attributes.value;
   }
 
   /**
@@ -408,6 +449,13 @@ class PinReadBlock extends Block {
     };
   }
 
+  fromJSON(json) {
+    this.attributes = json.attributes;
+    this.next = json.next;
+    this.pin = json.attributes.pin;
+    this.var = json.attributes.var;
+  }
+
   /**
    * @returns {Object} a representation of the current state of the block
    */
@@ -447,6 +495,12 @@ class CodeBlock extends Block {
     };
   }
 
+  fromJSON(json) {
+    this.attributes = json.attributes;
+    this.next = json.next;
+    this.code = json.attributes.code;
+  }
+
   /**
    * @returns {Object} a representation of the current state of the block
    */
@@ -483,6 +537,12 @@ class SleepBlock extends Block {
     return {
       length: this.length,
     };
+  }
+
+  fromJSON(json) {
+    this.attributes = json.attributes;
+    this.next = json.next;
+    this.length = json.attributes.length;
   }
 
   /**
