@@ -357,7 +357,7 @@ class Controller {
  */
 
   newProject() {
-    if (this.canvas.blocks.length === 0 || window.confirm('Make a new project?\nYou will lose any unsaved work.')) {
+    if (Object.keys(this.canvas.blocks).length === 0 || window.confirm('Make a new project?\nYou will lose any unsaved work.')) {
       this.canvas.clear();
       this.fileSavePath = undefined;
       const bounds = this.canvas.element.parentNode.getBoundingClientRect();

@@ -261,6 +261,8 @@ class LoopBlock extends Block {
    */
 =======
   fromJSON(json) {
+    this.attributes = json.attributes;
+    this.next = json.next;
     this.condition = json.attributes.condition;
   }
 
@@ -307,6 +309,8 @@ class ConditionalBlock extends Block {
   }
 
   fromJSON(json) {
+    this.attributes = json.attributes;
+    this.next = json.next;
     this.condition = json.attributes.condition;
     this.onTrue = json.attributes.children.true;
     this.onFalse = json.attributes.children.false;
@@ -399,6 +403,8 @@ class PinWriteBlock extends Block {
    */
 =======
   fromJSON(json) {
+    this.attributes = json.attributes;
+    this.next = json.next;
     this.value = json.attributes.value;
   }
 
