@@ -33,20 +33,35 @@ class Controller {
     document.getElementById('save-project').addEventListener('click', () => this.saveProject(), false);
 
     // Keyboard listener
-    document.body.addEventListener('keydown', e => {
-        switch (e.keyCode){
+    document.body.addEventListener('keydown', (e) => {
+      switch (e.keyCode) {
             // When the user pressed delete
-            case 8:
-            case 127:
-                this.deleteBlock()
-                break
+        case 8:
+        case 127:
+          this.deleteBlock();
+          break;
 
-            // When the user pressed 'c'
-            case 67:
-                this.enableConnection()
-                break
-        }
-    })
+            // When the user presses 'c'
+        case 67:
+                // Only allow moving if we are not dragging the block.
+          if (this.moveListener === undefined) {
+            this.enableConnection();
+          }
+          break;
+
+            // When the user presses 'd'
+        case 68:
+                // If we aren't moving and aren't drawing an arrow
+                //   clear the arrow connections
+          if (this.moveListener === undefined && this.connectionListener === undefined) {
+            if (this.activeBlock) {
+              this.activeBlock.next = undefined;
+              this.canvas.redraw();
+            }
+          }
+          break;
+      }
+    });
   }
 
   initCanvas() {
@@ -207,11 +222,11 @@ class Controller {
   //   to delete it
   deleteBlock() {
     if (this.activeBlock && this.activeBlock.uid !== 0) {
-        this.canvas.removeBlock(this.activeBlock)
-        this.canvas.redraw()
+      this.canvas.removeBlock(this.activeBlock);
+      this.canvas.redraw();
     }
   }
-  
+
 
   toggleConfigBar() {
     this.configBarActive = !this.configBarActive;
@@ -238,7 +253,7 @@ class Controller {
       this.moveListener = (e) => {
         if (e.buttons === 1) this.activeBlock.updatePosition(newX(e), newY(e));
         else this.disableMoving();
-        this.canvas.redraw()
+        this.canvas.redraw();
       };
 
       document.getElementById('chart-container').addEventListener('mousemove', this.moveListener);
@@ -270,48 +285,62 @@ class Controller {
       // Since the block bounds doesn't change we don't need to worry about that here.
       const blockBounds = this.activeBlock.element.getBoundingClientRect();
       const startPos = {
-        x: this.activeBlock.loc.x + blockBounds.width/2,
-        y: this.activeBlock.loc.y + blockBounds.height/2,
-      }
-      const startBlock = this.activeBlock
+        x: this.activeBlock.loc.x + blockBounds.width / 2,
+        y: this.activeBlock.loc.y + blockBounds.height / 2,
+      };
+      const startBlock = this.activeBlock;
 
       const endX = e => e.pageX - cvs.getBoundingClientRect().left;
       const endY = e => e.pageY - cvs.getBoundingClientRect().top;
 
       this.connectionListener = (e) => {
-        if (e.buttons === 1 && !this.pendingFrame) {
-            this.pendingFrame = true
-            this.canvas.redraw()
-            window.requestAnimationFrame( _ => {
-              this.canvas.drawArrow(
-                  startPos,
-                  { x: endX(e), y: endY(e) }
-              )
-              this.pendingFrame = false
-            })
+        // If we are holding the mouse button draw the arrow.
+        if (e.buttons === 1) {
+          // Make sure we don't redraw the same frame twice.
+          if (!this.pendingFrame) {
+            this.pendingFrame = true;
+            this.canvas.redraw();
+            // Use animation frame to increase performance of redraw.
+            window.requestAnimationFrame((_) => {
+              if (this.pendingFrame) {
+                this.canvas.drawArrow(
+                    startPos,
+                    { x: endX(e), y: endY(e) }
+                );
+                this.pendingFrame = false;
+              }
+            });
+          }
         }
+
+        // We released the mouse button.
         else {
-            if (e.target.classList.contains("block") && !e.target.classList.contains("template")){
-                const targetBlock = this.canvas.getBlockForElement(e.target)
-                if (targetBlock !== startBlock && startBlock){
-                    startBlock.next = targetBlock.uid
-                }
-                this.disableConnection()
+            // Prevent nasty timing bug from drawing double arrows.
+          this.pendingFrame = false;
+            // If we let go of the mouse over another block establish a connection.
+          if (e.target.classList.contains('block') && !e.target.classList.contains('template')) {
+            const targetBlock = this.canvas.getBlockForElement(e.target);
+                // Don't allow connections to the start block.
+            if (targetBlock !== startBlock && startBlock) {
+              startBlock.next = targetBlock.uid;
             }
-            this.canvas.redraw()
+            this.disableConnection();
+          }
+          this.canvas.redraw();
         }
       };
 
       document.getElementById('chart-container').addEventListener('mousemove', this.connectionListener);
+      document.getElementById('chart-container').addEventListener('mouseup', this.connectionListener);
     } else {
       console.log(`Attempted to connect block that was already being connected, or when one wasn't selected: ${
         JSON.stringify(this)}`);
     }
-    
   }
 
   disableConnection() {
     document.getElementById('chart-container').removeEventListener('mousemove', this.connectionListener);
+    document.getElementById('chart-container').removeEventListener('mouseup', this.connectionListener);
     this.connectionListener = undefined;
   }
 
@@ -339,8 +368,8 @@ class Controller {
 
   setProjectJSON(json) {
     const newChart = JSON.parse(json);
-    for (let key in newChart.blocks) {
-      const block = newChart.blocks[key]
+    for (const key in newChart.blocks) {
+      const block = newChart.blocks[key];
       const template = document.querySelector(`.template[data-type="${block.type}"`);
       blocks.TemplateBlock.dragged = template;
       const newBlock = this.createBlock(block.type, block.loc.x, block.loc.y);
