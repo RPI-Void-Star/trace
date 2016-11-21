@@ -14,9 +14,9 @@ class Transpiler():
     """The class that handles file loading and compilation/uploading"""
     def __init__(self, inputFile, port):
         self._inputFile = inputFile
-        self._coreDir    = 'arduino/avr/cores/arduino'
-        self._pinsDir    = 'arduino/avr/variants/standard'
-        self._cFile      = 'test.c'    # TODO generate this name
+        self._coreDir = 'arduino/avr/cores/arduino'
+        self._pinsDir = 'arduino/avr/variants/standard'
+        self._cFile = 'test.c'         # TODO generate this name
         self._binaryFile = 'test.hex'  # TODO generate this name
         self._port = port
         self._rootBlock = None
@@ -38,19 +38,29 @@ class Transpiler():
 
     def __compile(self):
         """Compiles the given Arduino C file to a binary file using avr-g++"""
-        # Compile c file into a temporary object file
-        subprocess.call('avr-gcc -D F_CPU=16000000 {1}/*.c {1}/*.S -I{1} -I{2} -mmcu=atmega328p -c -Os'.format(self._cFile,
-                                                                                           self._coreDir,
-                                                                                           self._pinsDir))
-        subprocess.call('avr-g++ -D F_CPU=16000000 {1}/*.cpp  -I{1} -I{2} {0} -mmcu=atmega328p -c -Os'.format(self._cFile,
-                                                                                           self._coreDir,
-                                                                                           self._pinsDir))
-        subprocess.call(('avr-g++ -D F_CPU=16000000 -mmcu=atmega328p ' +                   # Compile options
-                        '-Wall -Wextra -Os -flto -fuse-linker-plugin -Wl,--gc-sections ' + # Linker options
-                        '-o temp.elf *.o -I{1} -I{2} -lm -lm').format(self._cFile,         # Input/Output files
-                                                                      self._coreDir,
-                                                                      self._pinsDir))
-        # Copy object file into Intel hex binary file
+        # Compile C and assembly files
+        subprocess.call((
+            'avr-gcc -D F_CPU=16000000 -mmcu=atmega328p -c -Os ' +
+            '{1}/*.c {1}/*.S -I{1} -I{2}')
+            .format(self._cFile,
+                    self._coreDir,
+                    self._pinsDir))
+        # Compile C++ files and generated source file
+        subprocess.call((
+            'avr-g++ -D F_CPU=16000000 -mmcu=atmega328p -c -Os' +
+            '{1}/*.cpp  -I{1} -I{2} {0}')
+            .format(self._cFile,
+                    self._coreDir,
+                    self._pinsDir))
+        # Link all the object files into a binary
+        subprocess.call((
+            'avr-g++ -D F_CPU=16000000 -mmcu=atmega328p -Wall -Wextra ' +  # Compile options
+            '-Os -flto -fuse-linker-plugin -Wl,--gc-sections ' +           # Linker options
+            '-o temp.elf *.o -I{1} -I{2} -lm -lm')                         # Input/Output files
+            .format(self._cFile,
+                    self._coreDir,
+                    self._pinsDir))
+        # Copy binary file into Intel hex binary file
         subprocess.call('avr-objcopy -R .eeprom -O ihex temp.elf {0}'.format(self._binaryFile))
         # Remove the temporary object file
         try:

@@ -63,6 +63,7 @@ class WriteBlock(Block):
         self.value = BlockDefaults.DEFAULT_PIN_VALUE
         self.pin = BlockDefaults.DEFAULT_PIN
 
+
 class SleepBlock(Block):
     '''A block that causes the program to wait for a given time'''
     def __init__(self, id):
