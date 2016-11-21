@@ -26,7 +26,7 @@ class ArduinoConverter(Converter):
 
     def convert(self, startBlock):
 
-        program  = '#include <Arduino.h>\n'
+        program = '#include <Arduino.h>\n'
         program += 'int foo = 0;\n'
         program += parse(startBlock, '')
 
@@ -78,20 +78,24 @@ def parseConditionalBlock(block, space):
                 parse(block.ifTrue, space + '  '),
                 parse(block.ifFalse, space + '  ')) + parse(block.next, space + '  ')
 
+
 @parse.when_type(WriteBlock)
 def parseWriteBlock(block, space):
     return (space + 'digitalWrite({0},{1});\n' +
                     '{2}').format(block.pin, block.value, parse(block.next, space))
+
 
 @parse.when_type(ReadBlock)
 def parseReadBlock(block, space):
     return (space + '{1} = digitalRead({0});\n' +
                     '{2}').format(block.pin, block.var, parse(block.next, space))
 
+
 @parse.when_type(SleepBlock)
 def parseSleepBlock(block, space):
     return (space + 'delay({0});\n' +
                     '{1}').format(block.length, parse(block.next, space))
+
 
 if __name__ == "__main__":
     print("WARNING: This file is not meant to stand alone. Run main.py instead.")
