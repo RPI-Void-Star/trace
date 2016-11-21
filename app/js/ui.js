@@ -380,13 +380,28 @@ class Controller {
 
   setProjectJSON(json) {
     const newChart = JSON.parse(json);
+    const loopBlocks = {};
     Object.keys(newChart.blocks).forEach((key) => {
-      const block = newChart.blocks[key];
-      const template = document.querySelector(`.template[data-type="${block.type}"`);
-      blocks.Block.uid = key;
-      blocks.TemplateBlock.dragged = template;
-      const newBlock = this.createBlock(block.type, block.loc.x, block.loc.y);
-      newBlock.fromJSON(block);
+      if (loopBlocks[key] === undefined) {
+        const block = newChart.blocks[key];
+        const template = document.querySelector(`.template[data-type="${block.type}"`);
+        blocks.Block.uid = key;
+        blocks.TemplateBlock.dragged = template;
+        const newBlock = this.createBlock(block.type, block.loc.x, block.loc.y);
+        newBlock.fromJSON(block);
+        if (newBlock.type === 'loop') {
+          newBlock.children.forEach((child) => { loopBlocks[child] = newBlock.uid; });
+        }
+      } else {
+        const block = newChart.blocks[key];
+        blocks.Block.uid = key;
+        const child = this.createBlock(block.type, 'auto', 'auto');
+        child.fromJSON(block);
+        const par = this.canvas.blocks[loopBlocks[key]];
+        this.canvas.addBlock(child, true);
+        par.element.classList.add('full');
+        par.element.appendChild(child.element);
+      }
     });
   }
 
