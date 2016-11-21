@@ -14,8 +14,8 @@ class Transpiler():
     """The class that handles file loading and compilation/uploading"""
     def __init__(self, inputFile, port):
         self._inputFile = inputFile
-        self._coreDir = 'arduino/avr/cores/arduino'
-        self._pinsDir = 'arduino/avr/variants/standard'
+        self._coreDir = 'transpile/arduino/avr/cores/arduino'
+        self._pinsDir = 'transpile/arduino/avr/variants/standard'
         self._cFile = 'test.c'         # TODO generate this name
         self._binaryFile = 'test.hex'  # TODO generate this name
         self._port = port
@@ -47,7 +47,7 @@ class Transpiler():
                     self._pinsDir))
         # Compile C++ files and generated source file
         subprocess.call((
-            'avr-g++ -D F_CPU=16000000 -mmcu=atmega328p -c -Os' +
+            'avr-g++ -D F_CPU=16000000 -mmcu=atmega328p -c -Os ' +
             '{1}/*.cpp  -I{1} -I{2} {0}')
             .format(self._cFile,
                     self._coreDir,
@@ -93,12 +93,16 @@ def createBlock(blockDictionary, index):
             returnVal = ConditionalBlock(index)
         elif blockDictionary['type'] == 'variable':
             returnVal = VariableBlock(index)
-        elif blockDictionary['type'] == 'read':
+        elif blockDictionary['type'] == 'pin_read':
             returnVal = ReadBlock(index)
-        elif blockDictionary['type'] == 'write':
+        elif blockDictionary['type'] == 'pin_write':
             returnVal = WriteBlock(index)
         elif blockDictionary['type'] == 'sleep':
             returnVal = SleepBlock(index)
+        elif blockDictionary['type'] == 'code':
+            returnVal = CodeBlock(index)
+        elif blockDictionary['type'] == 'variable':
+            returnVal = VariableBlock(index)
         else:
             print('ERROR: Unknown block type: ' + blockDictionary['type'])
             exit(1)
@@ -111,8 +115,7 @@ def createBlock(blockDictionary, index):
 
 def loadBlockArray(blockDictionary):
     """Creates blocks corresponding to those in the dictionary with their default atributes"""
-    blockArray = [None] * len(blockDictionary)
-    print(blockDictionary)
+    blockArray = {}
     for index, curDict in blockDictionary.items():
         curBlock = createBlock(curDict, int(index))
         blockArray[int(index)] = curBlock
@@ -135,7 +138,7 @@ def populateAttributes(blockDictionary, blocks):
                 if (attribute == 'child'):
                     childIndex = int(attributes['child'])
                     curBlock.child = blocks[childIndex]
-                elif (attribute == 'children'):
+                elif (attribute == 'children' and curBlock.type == 'conditional'):
                     if 'true' not in attributes['children']:
                         print('ERROR: Conditional block' + index + ' missing true child')
                     if 'false' not in attributes['children']:

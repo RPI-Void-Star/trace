@@ -2,6 +2,8 @@
 *.o
 *.a
 *.so
+*.hex
+test.c
 
 # Folders
 _obj
