@@ -35,6 +35,7 @@ class Controller {
     document.getElementById('open-serial').addEventListener('click', () => this.openSerialMonitor(), false);
     document.getElementById('close-serial').addEventListener('click', () => this.closeSerialMonitor(), false);
     ipcRenderer.on('serial-data', (event, arg) => this.updateSerialMonitor(arg));
+    ipcRenderer.on('serial-error', (event, arg) => window.alert(`Serial Failed with error message:\n\n${arg.errorBuffer}`));
 
     // Keyboard listener
     document.body.addEventListener('keydown', (e) => {
@@ -444,7 +445,7 @@ class Controller {
           if (arg === 0) {
             window.alert('Upload Succeeded!');
           } else {
-            window.alert(`Upload failed with error code: ${arg}`);
+            window.alert(`Upload failed with error code: ${arg.code}\n\nError Message:\n\n${arg.errorBuffer}`);
           }
         });
 

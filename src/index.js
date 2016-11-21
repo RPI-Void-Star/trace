@@ -41,18 +41,22 @@ electron.ipcMain.on('load-file', (event, arg) => {
 
 electron.ipcMain.on('transpile-file', (event, arg) => {
   const transpiler = spawn('python', ['transpile/main.py', arg.filename, arg.port]);
+  let errorBuffer = '';
+  let outBuffer = '';
 
   transpiler.stdout.on('data', (data) => {
     console.log(`stdout: ${data}`);
+    outBuffer += data;
   });
 
   transpiler.stderr.on('data', (data) => {
     console.log(`stderr: ${data}`);
+    errorBuffer += data;
   });
 
   transpiler.on('close', (code) => {
     console.log(`child process exited with code ${code}`);
-    event.sender.send('upload-complete', code);
+    event.sender.send('upload-complete', { code, outBuffer, errorBuffer });
   });
 });
 
@@ -64,6 +68,8 @@ electron.ipcMain.on('transpile-file', (event, arg) => {
 
 let serialProcess;
 electron.ipcMain.on('open-serial', (event, arg) => {
+  let errorBuffer = '';
+
   serialProcess = spawn('python', ['transpile/com_test.py', arg.port]);
 
   serialProcess.stdout.on('data', (data) => {
@@ -73,12 +79,16 @@ electron.ipcMain.on('open-serial', (event, arg) => {
 
   serialProcess.stderr.on('data', (data) => {
     console.log(`stderr: ${data}`);
+    errorBuffer += data;
   });
 
   serialProcess.on('close', (code) => {
     serialProcess = undefined;
     console.log(`serial process exited with code ${code}`);
     event.sender.send('serial-closed', code);
+    if (code !== 0 && errorBuffer) {
+      event.sender.send('serial-error', { errorBuffer });
+    }
   });
 });
 
