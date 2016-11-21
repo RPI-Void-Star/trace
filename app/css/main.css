@@ -128,7 +128,7 @@ body > aside {
     display: block;
 }
 
-.full {
+.modal.full {
     position: absolute;
     top: -100vh;
     left: 0px;
@@ -140,12 +140,12 @@ body > aside {
     display: block;
     transition: opacity 1s, top 0s 1s;
 }
-.full.show {
+.modal.full.show {
     top: 0px;
     opacity: 1;
     transition: opacity 1s;
 }
-.full header {
+.modal.full header {
     height: 3em;
     width: calc(800px - .5em);
     padding-left: .5em;
@@ -156,8 +156,8 @@ body > aside {
     background-color: white;
     border-bottom: 1px solid #777;
 }
-.full header button,
-.full header button:focus {
+.modal.full header button,
+.modal.full header button:focus {
     border: 0px;
     border-radius: 0px;
     position: absolute;
@@ -169,7 +169,7 @@ body > aside {
     cursor: pointer;
 }
 
-.full content {
+.modal.full content {
     position: absolute;
     padding: 2em;
     top: calc( 10vh + 3em );

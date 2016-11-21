@@ -483,7 +483,8 @@ class Controller {
   }
 
   closeSerialPort(callback) {
-    ipcRenderer.once('serial-closed', (event, arg) => callback(arg));
+    // Run callback if it exists otherwise do nothing.
+    ipcRenderer.once('serial-closed', (event, arg) => callback ? callback(arg) : undefined);
     ipcRenderer.send('close-serial');
   }
 
