@@ -14,7 +14,9 @@ class Transpiler():
     """The class that handles file loading and compilation/uploading"""
     def __init__(self, inputFile, port):
         self._inputFile = inputFile
-        self._cFile = 'test.c'         # TODO generate this name
+        self._coreDir    = 'arduino/avr/cores/arduino'
+        self._pinsDir    = 'arduino/avr/variants/standard'
+        self._cFile      = 'test.c'    # TODO generate this name
         self._binaryFile = 'test.hex'  # TODO generate this name
         self._port = port
         self._rootBlock = None
@@ -37,6 +39,9 @@ class Transpiler():
     def __compile(self):
         """Compiles the given Arduino C file to a binary file using avr-g++"""
         # Compile c file into a temporary object file
+        subprocess.call('avr-g++ -I{1} -I{2} {0} -mmcu=atmega328p -c -o temp.o -Os'.format(self._cFile,
+                                                                                           self._coreDir,
+                                                                                           self._pinsDir))
         subprocess.call('avr-g++ {0} -mmcu=atmega328p -c -o temp.o -Os'.format(self._cFile,
                                                                                self._binaryFile))
         # Copy object file into Intel hex binary file
@@ -73,7 +78,7 @@ def createBlock(blockDictionary, index):
         elif blockDictionary['type'] == 'variable':
             returnVal = VariableBlock(index)
         else:
-            print('ERROR: Unknown block type: ' + blocks[index]['type'])
+            print('ERROR: Unknown block type: ' + blockDictionary['type'])
             exit(1)
     else:
         print('ERROR: Block', index, 'missing "type"')
@@ -85,6 +90,7 @@ def createBlock(blockDictionary, index):
 def loadBlockArray(blockDictionary):
     """Creates blocks corresponding to those in the dictionary with their default atributes"""
     blockArray = [None] * len(blockDictionary)
+    print(blockDictionary)
     for index in range(0, len(blockDictionary)):
         curDict = blockDictionary[index]
         curBlock = createBlock(curDict, index)
