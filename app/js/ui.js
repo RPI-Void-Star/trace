@@ -139,7 +139,8 @@ class Controller {
 
           const type = blocks.TemplateBlock.dragged.getAttribute('data-type');
           const child = this.createBlock(type, 'auto', 'auto');
-          block.children.push(child);
+          this.canvas.addBlock(child, true);
+          block.addBlock(child, id => this.canvas.blocks[id]);
           block.element.classList.add('full');
           block.element.appendChild(child.element);
 
@@ -484,7 +485,7 @@ class Controller {
 
   closeSerialPort(callback) {
     // Run callback if it exists otherwise do nothing.
-    ipcRenderer.once('serial-closed', (event, arg) => callback ? callback(arg) : undefined);
+    ipcRenderer.once('serial-closed', (event, arg) => (callback ? callback(arg) : undefined));
     ipcRenderer.send('close-serial');
   }
 

@@ -246,6 +246,13 @@ class LoopBlock extends Block {
     this.condition = null;
   }
 
+  addBlock(block, blockLookup) {
+    if (this.children.length) {
+      blockLookup(this.children[this.children.length - 1]).next = block.uid;
+    }
+    this.children.push(block.uid);
+  }
+
   /**
    * @returns {Object} the names and current values of the parameters
    */
@@ -260,6 +267,7 @@ class LoopBlock extends Block {
     this.next = json.next;
     this.condition = json.attributes.condition;
     this.children = json.attributes.children;
+    this.child = json.attributes.child;
   }
 
   /**
@@ -273,6 +281,7 @@ class LoopBlock extends Block {
       attributes: {
         condition: this.condition,
         children: this.children,
+        child: this.children.length ? this.children[0] : undefined,
       },
     };
   }
@@ -310,8 +319,8 @@ class ConditionalBlock extends Block {
     this.attributes = json.attributes;
     this.next = json.next;
     this.condition = json.attributes.condition;
-    this.onTrue = json.attributes.children.true;
-    this.onFalse = json.attributes.children.false;
+    this.onTrue = Number(json.attributes.children.true);
+    this.onFalse = Number(json.attributes.children.false);
   }
 
   /**
@@ -325,8 +334,8 @@ class ConditionalBlock extends Block {
       attributes: {
         condition: this.condition,
         children: {
-          true: this.onTrue,
-          false: this.onFalse,
+          true: Number(this.onTrue),
+          false: Number(this.onFalse),
         },
       },
     };
@@ -417,7 +426,7 @@ class PinWriteBlock extends Block {
       type: this.type,
       loc: this.loc,
       attributes: {
-        pin: this.pin,
+        pin: isNaN(Number(this.pin)) ? undefined : Number(this.pin),
         value: this.value,
       },
     };
@@ -465,7 +474,7 @@ class PinReadBlock extends Block {
       type: this.type,
       loc: this.loc,
       attributes: {
-        pin: this.pin,
+        pin: isNaN(Number(this.pin)) ? undefined : Number(this.pin),
         var: this.var,
       },
     };
@@ -554,7 +563,7 @@ class SleepBlock extends Block {
       type: this.type,
       loc: this.loc,
       attributes: {
-        length: this.length,
+        length: isNaN(Number(this.length)) ? undefined : Number(this.length),
       },
     };
   }
