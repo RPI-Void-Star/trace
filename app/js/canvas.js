@@ -51,7 +51,7 @@ class Canvas {
 
   // Function from: http://stackoverflow.com/questions/808826/draw-arrow-on-canvas-tag#6333775
   // Author: SteampunkWizard
-  drawArrow(startCoords, endCoords) {
+  drawArrow(startCoords, endCoords, color) {
     const { x: startx, y: starty } = startCoords;
     const { x: endx, y: endy } = endCoords;
     const lineWidth = 2;
@@ -66,7 +66,7 @@ class Canvas {
     ctx.beginPath();
     ctx.moveTo(startx, starty);
     ctx.lineTo(endx, endy);
-    ctx.strokeStyle = '#cc0000';
+    ctx.strokeStyle = color || '#cc0000';
     ctx.lineWidth = lineWidth;
     ctx.stroke();
 
@@ -89,10 +89,10 @@ class Canvas {
         halfway(starty, endy) - (headlen * Math.sin(angle - (Math.PI / 7))));
 
     // draws the paths created above
-    ctx.strokeStyle = '#cc0000';
+    ctx.strokeStyle = color || '#cc0000';
     ctx.lineWidth = lineWidth;
     ctx.stroke();
-    ctx.fillStyle = '#cc0000';
+    ctx.fillStyle = color || '#cc0000';
     ctx.fill();
   }
 
@@ -111,7 +111,25 @@ class Canvas {
         this.drawArrow(
           getCenter(block),
           getCenter(this.blocks[block.next])
-        ); }
+        );
+      }
+
+      if (block.type === 'conditional') {
+        if (block.onTrue && this.blocks[block.onTrue]) {
+          this.drawArrow(
+            getCenter(block),
+            getCenter(this.blocks[block.onTrue]),
+            '#00cc00'
+          );
+        }
+        if (block.onFalse && this.blocks[block.onFalse]) {
+          this.drawArrow(
+            getCenter(block),
+            getCenter(this.blocks[block.onFalse]),
+            '#0000cc'
+          );
+        }
+      }
     });
   }
 
@@ -152,7 +170,7 @@ class Canvas {
         returnvalue = this.blocks[key];
       }
     });
-    return returnvalue
+    return returnvalue;
   }
 
   clearBlockHighlight() {
