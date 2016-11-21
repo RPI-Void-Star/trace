@@ -173,6 +173,11 @@ class Block {
     this[param] = value;
   }
 
+  fromJSON(json) {
+    this.attributes = json.attributes;
+    this.next = json.next;
+  }
+
   /**
    * Returns an object representating the current state of the Block
    * @throws {TypeError} if this method is not implemented in a subclass
@@ -250,15 +255,23 @@ class LoopBlock extends Block {
     };
   }
 
+<<<<<<< HEAD
   /**
    * @returns {Object} a representation of the current state of the block
    */
+=======
+  fromJSON(json) {
+    this.condition = json.attributes.condition;
+  }
+
+>>>>>>> Repair project loading, minus loops
   toJSON() {
     return {
       next: this.next,
       type: this.type,
       loc: this.loc,
       attributes: {
+        condition: this.condition,
         children: this.children,
       },
     };
@@ -291,6 +304,12 @@ class ConditionalBlock extends Block {
       onTrue: this.onTrue,
       onFalse: this.onFalse,
     };
+  }
+
+  fromJSON(json) {
+    this.condition = json.attributes.condition;
+    this.onTrue = json.attributes.children.true;
+    this.onFalse = json.attributes.children.false;
   }
 
   /**
@@ -374,9 +393,16 @@ class PinWriteBlock extends Block {
     };
   }
 
+<<<<<<< HEAD
   /**
    * @returns {Object} a representation of the current state of the block
    */
+=======
+  fromJSON(json) {
+    this.value = json.attributes.value;
+  }
+
+>>>>>>> Repair project loading, minus loops
   toJSON() {
     return {
       next: this.next,

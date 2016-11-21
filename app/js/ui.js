@@ -378,10 +378,10 @@ class Controller {
     Object.keys(newChart.blocks).forEach((key) => {
       const block = newChart.blocks[key];
       const template = document.querySelector(`.template[data-type="${block.type}"`);
+      blocks.Block.uid = key;
       blocks.TemplateBlock.dragged = template;
       const newBlock = this.createBlock(block.type, block.loc.x, block.loc.y);
-      newBlock.attributes = block.attributes;
-      newBlock.next = block.next;
+      newBlock.fromJSON(block);
     });
   }
 
