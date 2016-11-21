@@ -446,7 +446,8 @@ class Controller {
           if (arg === 0) {
             window.alert('Upload Succeeded!');
           } else {
-            window.alert(`Upload failed with error code: ${arg.code}\n\nError Message:\n\n${arg.errorBuffer}`);
+            window.alert(`Upload failed with error code: ${arg.code}\n` +
+              `\nError Message:\n\n${arg.errorBuffer || arg.outBuffer}`);
           }
         });
 
