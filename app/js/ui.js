@@ -34,6 +34,7 @@ class Controller {
     document.getElementById('upload-project').addEventListener('click', () => this.uploadProject(), false);
     document.getElementById('open-serial').addEventListener('click', () => this.openSerialMonitor(), false);
     document.getElementById('close-serial').addEventListener('click', () => this.closeSerialMonitor(), false);
+    ipcRenderer.on('serial-data', (event, arg) => this.updateSerialMonitor(arg));
 
     // Keyboard listener
     document.body.addEventListener('keydown', (e) => {
@@ -433,25 +434,26 @@ class Controller {
   }
 
   uploadProject() {
-    this.saveProject()
+    this.saveProject();
     // Ensure the project is actually saved.
-    if (!this.fileSavePath){
-        alert("Project cannot be compiled until it is saved.")
-        return;
+    if (!this.fileSavePath) {
+      window.alert('Project cannot be compiled until it is saved.');
     } else {
-      ipcRenderer.once('upload-complete', (event, arg) => {
-        if (arg === 0) {
-            alert("Upload Succeeded!")
-        } else {
-            alert("Upload failed with error code: " + arg)
-        }
-      })
+      this.closeSerialPort(() => {
+        ipcRenderer.once('upload-complete', (event, arg) => {
+          if (arg === 0) {
+            window.alert('Upload Succeeded!');
+          } else {
+            window.alert(`Upload failed with error code: ${arg}`);
+          }
+        });
 
-      // Send the backend our file path so that
-      //   it can spawn the transpilation process.
-      ipcRenderer.send('transpile-file', {
-        filename: this.fileSavePath,
-        port: document.getElementById("serial-port").value
+        // Send the backend our file path so that
+        //   it can spawn the transpilation process.
+        ipcRenderer.send('transpile-file', {
+          filename: this.fileSavePath,
+          port: document.getElementById('serial-port').value,
+        });
       });
     }
   }
@@ -459,18 +461,29 @@ class Controller {
 
 /*
  * Serial Monitor Commands
- */ 
+ */
 
   openSerialMonitor() {
-    document.querySelector("section.full").classList.add("show")
+    document.querySelector('section.full').classList.add('show');
+    this.openSerialPort();
   }
 
   closeSerialMonitor() {
-    document.querySelector("section.full").classList.remove("show")
+    document.querySelector('section.full').classList.remove('show');
+    this.closeSerialPort();
   }
 
-  updateSerialMonitor(data){
-    document.querySelector("section.full content").innerHTML += data.replace("\n", "<br />")
+  updateSerialMonitor(data) {
+    document.querySelector('section.full content').innerHTML += data.replace('\n', '<br />');
+  }
+
+  openSerialPort() {
+    ipcRenderer.send('open-serial', { port: document.getElementById('serial-port').value });
+  }
+
+  closeSerialPort(callback) {
+    ipcRenderer.once('serial-closed', (event, arg) => callback(arg));
+    ipcRenderer.send('close-serial');
   }
 
 }

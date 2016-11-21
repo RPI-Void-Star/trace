@@ -23,7 +23,10 @@ electron.app.on('ready', () => {
   });
 });
 
+//
 // IPC listeners for file transactions.
+//
+//
 electron.ipcMain.on('save-file', (event, arg) => {
   fs.writeFile(arg.filename, arg.data, (err) => {
     event.returnValue = { err };
@@ -38,17 +41,51 @@ electron.ipcMain.on('load-file', (event, arg) => {
 
 electron.ipcMain.on('transpile-file', (event, arg) => {
   const transpiler = spawn('python', ['transpile/main.py', arg.filename, arg.port]);
-  
+
   transpiler.stdout.on('data', (data) => {
     console.log(`stdout: ${data}`);
   });
-  
+
   transpiler.stderr.on('data', (data) => {
     console.log(`stderr: ${data}`);
   });
-  
+
   transpiler.on('close', (code) => {
     console.log(`child process exited with code ${code}`);
-    event.sender.send('upload-complete', code)
+    event.sender.send('upload-complete', code);
   });
+});
+
+
+//
+// IPC listeners for serial port
+//
+//
+
+let serialProcess;
+electron.ipcMain.on('open-serial', (event, arg) => {
+  serialProcess = spawn('python', ['transpile/com_test.py', arg.port]);
+
+  serialProcess.stdout.on('data', (data) => {
+    console.log(`stdout: ${data}`);
+    event.sender.send('serial-data', data);
+  });
+
+  serialProcess.stderr.on('data', (data) => {
+    console.log(`stderr: ${data}`);
+  });
+
+  serialProcess.on('close', (code) => {
+    serialProcess = undefined;
+    console.log(`serial process exited with code ${code}`);
+    event.sender.send('serial-closed', code);
+  });
+});
+
+electron.ipcMain.on('close-serial', (event) => {
+  if (serialProcess) {
+    serialProcess.kill();
+  } else {
+    event.sender.send('serial-closed', 100);
+  }
 });
