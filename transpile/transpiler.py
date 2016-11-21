@@ -103,18 +103,16 @@ def loadBlockArray(blockDictionary):
     """Creates blocks corresponding to those in the dictionary with their default atributes"""
     blockArray = [None] * len(blockDictionary)
     print(blockDictionary)
-    for index in range(0, len(blockDictionary)):
-        curDict = blockDictionary[index]
-        curBlock = createBlock(curDict, index)
-        blockArray[index] = curBlock
+    for index, curDict in blockDictionary.items():
+        curBlock = createBlock(curDict, int(index))
+        blockArray[int(index)] = curBlock
     return blockArray
 
 
 def populateAttributes(blockDictionary, blocks):
     """Populates the attributes of the blocks from the dictionary"""
-    for index in range(0, len(blockDictionary)):
-        curDict = blockDictionary[index]
-        curBlock = blocks[index]
+    for index, curDict in blockDictionary.items():
+        curBlock = blocks[int(index)]
         if 'next' in curDict:
             if not curDict['next'] is None:
                 curBlock.next = blocks[int(curDict['next'])]
