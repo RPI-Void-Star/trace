@@ -259,7 +259,7 @@ class LoopBlock extends Block {
     this.attributes = json.attributes;
     this.next = json.next;
     this.condition = json.attributes.condition;
-    this.children = json.attributes.children
+    this.children = json.attributes.children;
   }
 
   /**
@@ -405,7 +405,7 @@ class PinWriteBlock extends Block {
     this.attributes = json.attributes;
     this.next = json.next;
     this.pin = json.attributes.pin;
-    this.value = json.attributes.value
+    this.value = json.attributes.value;
   }
 
   /**
