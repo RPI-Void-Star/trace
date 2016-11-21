@@ -24,8 +24,8 @@ if __name__ == '__main__':
 
     if len(sys.argv) > 1:
         testCOMPort = COMportReader()
-        testCOMPort.ser = serial.Serial(sys.argv[1], 9600, timeout=1)
+        testCOMPort.ser = serial.Serial(sys.argv[1], 115200, timeout=1)
         while(True):
             to_stdout = testCOMPort.ser.read(4096)
             if to_stdout:
-                print(to_stdout)
+                print(to_stdout.decode(), end = '')
