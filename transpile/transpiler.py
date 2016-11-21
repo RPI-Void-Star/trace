@@ -14,8 +14,8 @@ class Transpiler():
     """The class that handles file loading and compilation/uploading"""
     def __init__(self, inputFile, port):
         self._inputFile = inputFile
-        self._coreDir = 'arduino/avr/cores/arduino'
-        self._pinsDir = 'arduino/avr/variants/standard'
+        self._coreDir = 'transpile/arduino/avr/cores/arduino'
+        self._pinsDir = 'transpile/arduino/avr/variants/standard'
         self._cFile = 'test.c'         # TODO generate this name
         self._binaryFile = 'test.hex'  # TODO generate this name
         self._port = port
@@ -115,7 +115,7 @@ def createBlock(blockDictionary, index):
 
 def loadBlockArray(blockDictionary):
     """Creates blocks corresponding to those in the dictionary with their default atributes"""
-    blockArray = [None] * len(blockDictionary)
+    blockArray = {}
     for index, curDict in blockDictionary.items():
         curBlock = createBlock(curDict, int(index))
         blockArray[int(index)] = curBlock
