@@ -1,0 +1,38 @@
+{
+    "blocks" : [
+        {
+            "next" : 1,
+            "type" : "start"
+        },
+        {
+            "next" : 2,
+            "type" : "write",
+            "attributes" : {
+                "pin" : 12,
+                "value": "HIGH"
+            }
+        },
+        {
+            "next" : 3,
+            "type" : "sleep",
+            "attributes" : {
+                "length" : 1000
+            }
+        },
+		{
+			"next" : 4,
+			"type" : "write",
+			"attributes" : {
+				"pin" : 12,
+				"value" : "LOW"
+			}
+		},
+		{
+			"next" : null,
+			"type" : "sleep",
+			"attributes" : {
+				"length" : 1000
+			}
+		}
+    ]
+}
