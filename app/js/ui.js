@@ -31,6 +31,7 @@ class Controller {
     document.getElementById('new-project').addEventListener('click', () => this.newProject(), false);
     document.getElementById('open-project').addEventListener('click', () => this.openProject(), false);
     document.getElementById('save-project').addEventListener('click', () => this.saveProject(), false);
+    document.getElementById('upload-project').addEventListener('click', () => this.uploadProject(), false);
 
     // Keyboard listener
     document.body.addEventListener('keydown', (e) => {
@@ -71,7 +72,6 @@ class Controller {
   initCanvas() {
     this.canvas = new Canvas(document.getElementById('chart-canvas'),
                              document.getElementById('chart-container'));
-    window.onresize = () => this.canvas.updateCanvas();
 
     this.canvas.container.addEventListener('drop', (event) => {
       // Detects when blocks are dropped onto the canvas and adds a copy of the block.
@@ -429,6 +429,31 @@ class Controller {
     });
     if (res.err) throw res.err;
   }
+
+  uploadProject() {
+    this.saveProject()
+    // Ensure the project is actually saved.
+    if (!this.fileSavePath){
+        alert("Project cannot be compiled until it is saved.")
+        return;
+    } else {
+      ipcRenderer.once('upload-complete', (event, arg) => {
+        if (arg === 0) {
+            alert("Upload Succeeded!")
+        } else {
+            alert("Upload failed with error code: " + arg)
+        }
+      })
+
+      // Send the backend our file path so that
+      //   it can spawn the transpilation process.
+      ipcRenderer.send('transpile-file', {
+        filename: this.fileSavePath,
+        port: document.getElementById("serial-port").value
+      });
+    }
+  }
+
 }
 module.exports.Controller = Controller;
 

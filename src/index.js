@@ -1,5 +1,6 @@
 const electron = require('electron');
 const fs = require('fs');
+const spawn = require('child_process').spawn;
 
 let mainWindow = null;
 
@@ -32,5 +33,22 @@ electron.ipcMain.on('save-file', (event, arg) => {
 electron.ipcMain.on('load-file', (event, arg) => {
   fs.readFile(arg.filename, (err, data) => {
     event.returnValue = { err, data };
+  });
+});
+
+electron.ipcMain.on('transpile-file', (event, arg) => {
+  const transpiler = spawn('python', ['transpile/main.py', arg.filename, arg.port]);
+  
+  transpiler.stdout.on('data', (data) => {
+    console.log(`stdout: ${data}`);
+  });
+  
+  transpiler.stderr.on('data', (data) => {
+    console.log(`stderr: ${data}`);
+  });
+  
+  transpiler.on('close', (code) => {
+    console.log(`child process exited with code ${code}`);
+    event.sender.send('upload-complete', code)
   });
 });
