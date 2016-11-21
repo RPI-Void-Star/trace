@@ -1,10 +1,10 @@
 {
-    "blocks" : [
-        {
+    "blocks" : {
+        0 : {
             "next" : 1,
             "type" : "start"
         },
-        {
+        1 : {
             "next" : 2,
             "type" : "write",
             "attributes" : {
@@ -12,14 +12,14 @@
                 "value": "HIGH"
             }
         },
-        {
+        2 : {
             "next" : 3,
             "type" : "sleep",
             "attributes" : {
                 "length" : 1000
             }
         },
-		{
+		3 : {
 			"next" : 4,
 			"type" : "write",
 			"attributes" : {
@@ -27,12 +27,12 @@
 				"value" : "LOW"
 			}
 		},
-		{
+		4 : {
 			"next" : null,
 			"type" : "sleep",
 			"attributes" : {
 				"length" : 1000
 			}
 		}
-    ]
+    }
 }
