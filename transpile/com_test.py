@@ -3,12 +3,14 @@
 import serial
 import sys
 
+
 class COMportReader():
     def __init__(self):
         ser = serial.Serial()
 
+
 def printUsage():
-    print('Usage: ./com_test.py [COM port #]')    
+    print('Usage: ./com_test.py [COM port #]')
 
 if __name__ == '__main__':
     if len(sys.argv) != 2 and len(sys.argv) != 1:
