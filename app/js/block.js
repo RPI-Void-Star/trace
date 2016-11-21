@@ -126,6 +126,11 @@ class Block {
     this[param] = value;
   }
 
+  fromJSON(json) {
+    this.attributes = json.attributes;
+    this.next = json.next;
+  }
+
   /**
    * @virtual
    */
@@ -181,12 +186,17 @@ class LoopBlock extends Block {
     };
   }
 
+  fromJSON(json) {
+    this.condition = json.attributes.condition;
+  }
+
   toJSON() {
     return {
       next: this.next,
       type: this.type,
       loc: this.loc,
       attributes: {
+        condition: this.condition,
         children: this.children,
       },
     };
@@ -213,6 +223,12 @@ class ConditionalBlock extends Block {
       onTrue: this.onTrue,
       onFalse: this.onFalse,
     };
+  }
+
+  fromJSON(json) {
+    this.condition = json.attributes.condition;
+    this.onTrue = json.attributes.children.true;
+    this.onFalse = json.attributes.children.false;
   }
 
   toJSON() {
@@ -243,6 +259,10 @@ class VariableBlock extends Block {
 
   getParamsMeta() {
     return `Block ${this.uid}: variable?!`;
+  }
+
+  fromJSON(json) {
+    this.value = json.attributes.value;
   }
 
   toJSON() {
