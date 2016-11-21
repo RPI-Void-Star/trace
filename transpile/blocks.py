@@ -51,7 +51,7 @@ class ReadBlock(Block):
     def __init__(self, id):
         super().__init__(id)
         self._type = 'read'
-        self.variable = None
+        self.var = None
         self.pin = BlockDefaults.DEFAULT_PIN_VALUE
 
 
@@ -63,6 +63,12 @@ class WriteBlock(Block):
         self.value = BlockDefaults.DEFAULT_PIN_VALUE
         self.pin = BlockDefaults.DEFAULT_PIN
 
+class SleepBlock(Block):
+    '''A block that causes the program to wait for a given time'''
+    def __init__(self, id):
+        super().__init__(id)
+        self._type = 'sleep'
+        self.length = 0
 
 if __name__ == '__main__':
     print('WARNING: This file is not meant to stand alone. Run main.py instead.')
