@@ -94,6 +94,7 @@ const setPositionToCoords = (node, x, y) => {
     throw new PosException(`Invalid x, y, position: ${x} ${y}`);
   }
 };
+module.exports.setPositionToCoords = setPositionToCoords;
 
 
 /**

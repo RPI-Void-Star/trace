@@ -305,6 +305,7 @@ class Controller {
     if (res.err) throw res.err;
   }
 }
+module.exports.Controller = Controller;
 
 window.controller = new Controller();
 window.controller.initCanvas();
