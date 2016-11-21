@@ -88,7 +88,7 @@ class Block {
     if (x !== 'auto' && y !== 'auto') {
       this.loc = {
         x: x - TemplateBlock.draggedOffset.x,
-        y: y - TemplateBlock.draggedOffset.y
+        y: y - TemplateBlock.draggedOffset.y,
       };
       setPositionToCoords(this.element, x - TemplateBlock.draggedOffset.x,
         y - TemplateBlock.draggedOffset.y);
