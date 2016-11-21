@@ -146,24 +146,27 @@ class Canvas {
   }
 
   getBlockForElement(elm) {
-    for (const key in this.blocks) {
+    let returnvalue;
+    Object.keys(this.blocks).forEach((key) => {
       if (this.blocks[key].element === elm) {
-        return this.blocks[key];
-      } }
+        returnvalue = this.blocks[key];
+      }
+    });
+    return returnvalue
   }
 
   clearBlockHighlight() {
-    for (const key in this.blocks) {
+    Object.keys(this.blocks).forEach((key) => {
       const block = this.blocks[key];
       block.removeHighlight();
-    }
+    });
   }
 
   clear() {
-    for (const key in this.blocks) {
+    Object.keys(this.blocks).forEach((key) => {
       const block = this.blocks[key];
       block.element.remove();
-    }
+    });
     this.blocks = {};
     this.redraw();
   }
