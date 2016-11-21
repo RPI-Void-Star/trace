@@ -1,10 +1,10 @@
 {
     "blocks" : {
-        0 : {
+        "0" : {
             "next" : 1,
             "type" : "start"
         },
-        1 : {
+        "1" : {
             "next": 2,
             "type": "read",
             "attributes" : {
@@ -12,7 +12,7 @@
                 "var": "foo"
             }
         },
-        2 : {
+        "2" : {
             "next" : 2,
             "type" : "conditional",
             "attributes" : {
@@ -23,7 +23,7 @@
                 }
             }
         },
-        3 : {
+        "3" : {
             "next" : 4,
             "type" : "blink",
             "attributes" : {
@@ -31,7 +31,7 @@
                 "time": 1
             }
         },
-        4 : {
+        "4" : {
             "next" : null,
             "type" : "delay",
             "attributes" : {
