@@ -27,28 +27,34 @@ class Transpiler():
         self.__load()
         self.__convert()
         self.__compile()
-        # self.__upload()
+        self.__upload()
         # TODO return an error if any are encountered
 
     def __upload(self):
         """Uploads the binary file to the Arduino on the given port with avrdude"""
         # Execute avrdude to upload the Intel hex file to the Arduino
-        subprocess.call('avrdude -p m328p -P {0} -c arduino -b 19200 -F -u -U flash:w:{1}'
+        subprocess.call('avrdude -p m328p -P {0} -c arduino -b 115200 -D -U flash:w:{1}'
                         .format(self._port, self._binaryFile))
 
     def __compile(self):
         """Compiles the given Arduino C file to a binary file using avr-g++"""
         # Compile c file into a temporary object file
-        subprocess.call('avr-g++ -I{1} -I{2} {0} -mmcu=atmega328p -c -o temp.o -Os'.format(self._cFile,
+        subprocess.call('avr-gcc -D F_CPU=16000000 {1}/*.c {1}/*.S -I{1} -I{2} -mmcu=atmega328p -c -Os'.format(self._cFile,
                                                                                            self._coreDir,
                                                                                            self._pinsDir))
-        subprocess.call('avr-g++ {0} -mmcu=atmega328p -c -o temp.o -Os'.format(self._cFile,
-                                                                               self._binaryFile))
+        subprocess.call('avr-g++ -D F_CPU=16000000 {1}/*.cpp  -I{1} -I{2} {0} -mmcu=atmega328p -c -Os'.format(self._cFile,
+                                                                                           self._coreDir,
+                                                                                           self._pinsDir))
+        subprocess.call(('avr-g++ -D F_CPU=16000000 -mmcu=atmega328p ' +                   # Compile options
+                        '-Wall -Wextra -Os -flto -fuse-linker-plugin -Wl,--gc-sections ' + # Linker options
+                        '-o temp.elf *.o -I{1} -I{2} -lm -lm').format(self._cFile,         # Input/Output files
+                                                                      self._coreDir,
+                                                                      self._pinsDir))
         # Copy object file into Intel hex binary file
-        subprocess.call('avr-objcopy -R .eeprom -O ihex temp.o {0}'.format(self._binaryFile))
+        subprocess.call('avr-objcopy -R .eeprom -O ihex temp.elf {0}'.format(self._binaryFile))
         # Remove the temporary object file
         try:
-            os.remove("temp.o")
+            os.remove("temp.elf")
         except OSError:
             pass
 
@@ -77,6 +83,12 @@ def createBlock(blockDictionary, index):
             returnVal = ConditionalBlock(index)
         elif blockDictionary['type'] == 'variable':
             returnVal = VariableBlock(index)
+        elif blockDictionary['type'] == 'read':
+            returnVal = ReadBlock(index)
+        elif blockDictionary['type'] == 'write':
+            returnVal = WriteBlock(index)
+        elif blockDictionary['type'] == 'sleep':
+            returnVal = SleepBlock(index)
         else:
             print('ERROR: Unknown block type: ' + blockDictionary['type'])
             exit(1)
