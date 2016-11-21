@@ -71,16 +71,22 @@ class Canvas {
     ctx.stroke();
 
     // starting a new path from the head of the arrow to one of the sides of the point
+    const halfway = (start, end) => ((end - start) / 1.75) + start;
     ctx.beginPath();
-    ctx.moveTo(endx, endy);
-    ctx.lineTo(endx - headlen * Math.cos(angle - Math.PI / 7), endy - headlen * Math.sin(angle - Math.PI / 7));
+    ctx.moveTo(halfway(startx, endx), halfway(starty, endy));
+
+    ctx.lineTo(halfway(startx, endx) - (headlen * Math.cos(angle - (Math.PI / 7))),
+        halfway(starty, endy) - (headlen * Math.sin(angle - (Math.PI / 7))));
 
     // path from the side point of the arrow, to the other side point
-    ctx.lineTo(endx - headlen * Math.cos(angle + Math.PI / 7), endy - headlen * Math.sin(angle + Math.PI / 7));
+    ctx.lineTo(halfway(startx, endx) - (headlen * Math.cos(angle + (Math.PI / 7))),
+        halfway(starty, endy) - (headlen * Math.sin(angle + (Math.PI / 7))));
 
-    // path from the side point back to the tip of the arrow, and then again to the opposite side point
-    ctx.lineTo(endx, endy);
-    ctx.lineTo(endx - headlen * Math.cos(angle - Math.PI / 7), endy - headlen * Math.sin(angle - Math.PI / 7));
+    // path from the side point back to the tip of the arrow,
+    //   and then again to the opposite side point
+    ctx.lineTo(halfway(startx, endx), halfway(starty, endy));
+    ctx.lineTo(halfway(startx, endx) - (headlen * Math.cos(angle - (Math.PI / 7))),
+        halfway(starty, endy) - (headlen * Math.sin(angle - (Math.PI / 7))));
 
     // draws the paths created above
     ctx.strokeStyle = '#cc0000';
@@ -95,18 +101,18 @@ class Canvas {
     this.clearCanvas();
     this.drawGrid();
     const getCenter = block => ({
-      x: block.loc.x + block.element.getBoundingClientRect().width / 2,
-      y: block.loc.y + block.element.getBoundingClientRect().height / 2,
+      x: block.loc.x + (block.element.getBoundingClientRect().width / 2),
+      y: block.loc.y + (block.element.getBoundingClientRect().height / 2),
     });
 
-    for (const key in this.blocks) {
+    Object.keys(this.blocks).forEach((key) => {
       const block = this.blocks[key];
       if (block.next) {
         this.drawArrow(
           getCenter(block),
           getCenter(this.blocks[block.next])
         ); }
-    }
+    });
   }
 
 
@@ -123,16 +129,16 @@ class Canvas {
   }
 
   removeBlock(block) {
-    let keyToKill;
-
-    // TODO KILL LOOPS if (block.type === "loop") { block.children.forEach( childID => keysToKill.push(childID) ) }
-    for (const key in this.blocks) {
+    if (block.type === 'loop') {
+      block.children.forEach(child => this.removeBlock(child));
+    }
+    Object.keys(this.blocks).forEach((key) => {
       // If a block is referring to the block we are deleting
       //  remove the reference
       if (this.blocks[this.blocks[key].next] === block) {
         this.blocks[key].next = undefined;
       }
-    }
+    });
 
     block.element.remove();
     delete this.blocks[block.uid];
