@@ -71,6 +71,22 @@ class SleepBlock(Block):
         self._type = 'sleep'
         self.length = 0
 
+
+class CodeBlock(Block):
+    '''A block that contains a piece of code entered by the user'''
+    def __init__(self, id):
+        super().__init__(id)
+        self._type = 'code'
+        self.code = None
+
+
+class VariableBlock(Block):
+    '''A block that defines a variable for later use in the program'''
+    def __init__(self, id):
+        super().__init__(id)
+        self._type = 'variable'
+        self.name = None
+
 if __name__ == '__main__':
     print('WARNING: This file is not meant to stand alone. Run main.py instead.')
     exit(1)

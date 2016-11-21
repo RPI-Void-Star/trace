@@ -26,8 +26,7 @@ class ArduinoConverter(Converter):
 
     def convert(self, startBlock):
 
-        program = '#include <Arduino.h>\n'
-        program += 'int foo = 0;\n'
+        program = '#include <Arduino.h>\n\n'
         program += parse(startBlock, '')
 
         f = open(self._outputFile, 'w')
@@ -47,10 +46,11 @@ def parseBlock(block, space):
 
 @parse.when_type(StartBlock)
 def parseStartBlock(block, space):
-    return (space + 'void setup() {{ pinMode(12, OUTPUT); }}\n' +
+    return (space + 'void setup() {{}}\n' +
+            space + '\n' +
             space + 'void loop()\n' +
             space + '{{\n' +
-            '{0}\n' +
+            '{0}' +
             space + '}}\n').format(parse(block.next, space + '  '))
 
 
@@ -58,8 +58,8 @@ def parseStartBlock(block, space):
 def parseLoopBlock(block, space):
     return (space + 'while ({0})\n' +
             space + '{{\n' +
-                    '{1}\n' +
-            space + '}}').format(
+                    '{1}' +
+            space + '}}\n').format(
                 block.condition,
                 parse(block.child, space + '  ')) + parse(block.next, space + '  ')
 
@@ -73,7 +73,7 @@ def parseConditionalBlock(block, space):
             space + 'else\n' +
             space + '{{\n' +
             '{2}' +
-            space + '}}').format(
+            space + '}}\n').format(
                 block.condition,
                 parse(block.ifTrue, space + '  '),
                 parse(block.ifFalse, space + '  ')) + parse(block.next, space + '  ')
@@ -95,6 +95,18 @@ def parseReadBlock(block, space):
 def parseSleepBlock(block, space):
     return (space + 'delay({0});\n' +
                     '{1}').format(block.length, parse(block.next, space))
+
+
+@parse.when_type(CodeBlock)
+def parseCodeBlock(block, space):
+    return (space + block.code + ';\n' +
+                    '{0}').format(parse(block.next, space))
+
+
+@parse.when_type(VariableBlock)
+def parseVariableBlock(block, space):
+    return (space + 'int {0} = 0;\n' +
+                    '{1}').format(block.name, parse(block.next, space))
 
 
 if __name__ == "__main__":
