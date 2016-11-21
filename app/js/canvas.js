@@ -140,21 +140,43 @@ class Canvas {
     ctx.clearRect(0, 0, this.element.width, this.element.height);
   }
 
-  addBlock(block) {
+  addBlock(block, doNotAppend) {
     // If there are no blocks, make the first block have an id of new
-    this.container.appendChild(block.element);
+    if (!doNotAppend) { this.container.appendChild(block.element); }
     this.blocks[block.uid] = block;
   }
 
   removeBlock(block) {
     if (block.type === 'loop') {
-      block.children.forEach(child => this.removeBlock(child));
+      // Maintain a list of the old blocks so the modifications does not
+      //   affect iteration.
+      const oldBlocks = JSON.parse(JSON.stringify(block.children));
+      oldBlocks.forEach(child => this.removeBlock(this.blocks[child]));
     }
     Object.keys(this.blocks).forEach((key) => {
       // If a block is referring to the block we are deleting
       //  remove the reference
       if (this.blocks[this.blocks[key].next] === block) {
-        this.blocks[key].next = undefined;
+        const prevBlock = this.blocks[key];
+        // Connect blocks to reestablish chain if it exists.
+        if (block.next) {
+          prevBlock.next = block.next;
+        } else {
+          this.blocks[key].next = undefined;
+        }
+      }
+
+      if (this.blocks[key].type === 'conditional') {
+        if (this.blocks[key].onTrue === block.uid) { this.blocks[key].onTrue = undefined; }
+        if (this.blocks[key].onFalse === block.uid) { this.blocks[key].onFalse = undefined; }
+      } else if (this.blocks[key].type === 'loop') {
+        if (this.blocks[key].children.indexOf(block.uid) !== -1) {
+          this.blocks[key].children.splice(this.blocks[key].children.indexOf(block.uid), 1);
+          // If our loop has no inner blocks remove the full style.
+          if (this.blocks[key].children.length === 0) {
+            this.blocks[key].element.classList.remove('full');
+          }
+        }
       }
     });
 

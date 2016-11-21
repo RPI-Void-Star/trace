@@ -13,7 +13,7 @@ def printUsage():
     print('Usage: ./com_test.py [COM port #]')
 
 if __name__ == '__main__':
-    if len(sys.argv) != 2 and len(sys.argv) != 1:
+    if len(sys.argv) != 2:
         print('ERROR: Invalid number of arguments')
         printUsage()
         exit(1)

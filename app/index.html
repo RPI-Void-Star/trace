@@ -13,8 +13,9 @@
             <a id="new-project"><span class="center">New</span></a>
             <a id="open-project"><span class="center">Open</span></a>
             <a id="save-project"><span class="center">Save</span></a>
-            <a><span class="center">Upload</span></a>
-            <a><span class="center">Compile</span></a>
+            <a id="upload-project"><span class="center">Upload</span></a>
+            <a><span class="center">Port: <input id="serial-port"></input></span></a>
+            <a id="open-serial"><span class="center">Monitor</span></a>
         </header>
 
         <aside id="config-bar" class="left center">
@@ -62,6 +63,15 @@
             <div id="arduino-image"></div>
         </aside>
 
+
+        <section class="full modal">
+            <header>
+                <h2>Serial Output</h2>
+                <button id="close-serial">X</button>
+            </header>
+            <content>
+            </content>
+        </section>
     </body>
     <script type="text/javascript" src="js/index.js"></script>
 </html>

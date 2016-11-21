@@ -38,8 +38,21 @@ body > header > * {
     padding: 5px;
     cursor: pointer;
     vertical-align: middle;
+    transition: background-color .5s;
 }
 body > header > *:first-of-type {
+    background-color: #383F5A;
+}
+body > header > *:last-of-type {
+    float: right;
+    padding-right: 1em;
+    padding-left: 1em;
+}
+body > header > *:nth-last-of-type(2) {
+    float: right;
+    padding-right: 1em;
+}
+body > header > *:hover{
     background-color: #383F5A;
 }
 
@@ -115,6 +128,59 @@ body > aside {
     display: block;
 }
 
+.modal.full {
+    position: absolute;
+    top: -100vh;
+    left: 0px;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0,0,0,.5);
+    z-index: 1;
+    opacity: 0;
+    display: block;
+    transition: opacity 1s, top 0s 1s;
+}
+.modal.full.show {
+    top: 0px;
+    opacity: 1;
+    transition: opacity 1s;
+}
+.modal.full header {
+    height: 3em;
+    width: calc(800px - .5em);
+    padding-left: .5em;
+    position: absolute;
+    top: 10vh;
+    left: calc( 50vw - 400px);
+    z-index: 2;
+    background-color: white;
+    border-bottom: 1px solid #777;
+}
+.modal.full header button,
+.modal.full header button:focus {
+    border: 0px;
+    border-radius: 0px;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    height: 100%;
+    width: 50px;
+    font-size: 1em;
+    cursor: pointer;
+}
+
+.modal.full content {
+    position: absolute;
+    padding: 2em;
+    top: calc( 10vh + 3em );
+    left: calc( 50vw - 400px);
+    height: calc( 80vh - 4em );
+    width: calc( 800px - 4em );
+    background-color: white;
+    display: block;
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
 
 body > .half { height: calc( 50% - 25px ); }
 .half { height: 50%; }
