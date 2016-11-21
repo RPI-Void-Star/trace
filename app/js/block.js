@@ -255,18 +255,16 @@ class LoopBlock extends Block {
     };
   }
 
-<<<<<<< HEAD
-  /**
-   * @returns {Object} a representation of the current state of the block
-   */
-=======
   fromJSON(json) {
     this.attributes = json.attributes;
     this.next = json.next;
     this.condition = json.attributes.condition;
+    this.children = json.attributes.children
   }
 
->>>>>>> Repair project loading, minus loops
+  /**
+   * @returns {Object} a representation of the current state of the block
+   */
   toJSON() {
     return {
       next: this.next,
@@ -357,6 +355,12 @@ class VariableBlock extends Block {
     };
   }
 
+  fromJSON(json) {
+    this.attributes = json.attributes;
+    this.next = json.next;
+    this.name = json.attributes.name;
+  }
+
   /**
    * @returns {Object} a representation of the current state of the block
    */
@@ -397,18 +401,16 @@ class PinWriteBlock extends Block {
     };
   }
 
-<<<<<<< HEAD
-  /**
-   * @returns {Object} a representation of the current state of the block
-   */
-=======
   fromJSON(json) {
     this.attributes = json.attributes;
     this.next = json.next;
-    this.value = json.attributes.value;
+    this.pin = json.attributes.pin;
+    this.value = json.attributes.value
   }
 
->>>>>>> Repair project loading, minus loops
+  /**
+   * @returns {Object} a representation of the current state of the block
+   */
   toJSON() {
     return {
       next: this.next,
@@ -445,6 +447,13 @@ class PinReadBlock extends Block {
       pin: this.pin,
       var: this.var,
     };
+  }
+
+  fromJSON(json) {
+    this.attributes = json.attributes;
+    this.next = json.next;
+    this.pin = json.attributes.pin;
+    this.var = json.attributes.var;
   }
 
   /**
@@ -486,6 +495,12 @@ class CodeBlock extends Block {
     };
   }
 
+  fromJSON(json) {
+    this.attributes = json.attributes;
+    this.next = json.next;
+    this.code = json.attributes.code;
+  }
+
   /**
    * @returns {Object} a representation of the current state of the block
    */
@@ -522,6 +537,12 @@ class SleepBlock extends Block {
     return {
       length: this.length,
     };
+  }
+
+  fromJSON(json) {
+    this.attributes = json.attributes;
+    this.next = json.next;
+    this.length = json.attributes.length;
   }
 
   /**
