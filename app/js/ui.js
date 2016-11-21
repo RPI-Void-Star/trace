@@ -31,6 +31,11 @@ class Controller {
     document.getElementById('new-project').addEventListener('click', () => this.newProject(), false);
     document.getElementById('open-project').addEventListener('click', () => this.openProject(), false);
     document.getElementById('save-project').addEventListener('click', () => this.saveProject(), false);
+    document.getElementById('upload-project').addEventListener('click', () => this.uploadProject(), false);
+    document.getElementById('open-serial').addEventListener('click', () => this.openSerialMonitor(), false);
+    document.getElementById('close-serial').addEventListener('click', () => this.closeSerialMonitor(), false);
+    ipcRenderer.on('serial-data', (event, arg) => this.updateSerialMonitor(arg));
+    ipcRenderer.on('serial-error', (event, arg) => window.alert(`Serial Failed with error message:\n\n${arg.errorBuffer}`));
 
     // Keyboard listener
     document.body.addEventListener('keydown', (e) => {
@@ -71,7 +76,6 @@ class Controller {
   initCanvas() {
     this.canvas = new Canvas(document.getElementById('chart-canvas'),
                              document.getElementById('chart-container'));
-    window.onresize = () => this.canvas.updateCanvas();
 
     this.canvas.container.addEventListener('drop', (event) => {
       // Detects when blocks are dropped onto the canvas and adds a copy of the block.
@@ -135,7 +139,8 @@ class Controller {
 
           const type = blocks.TemplateBlock.dragged.getAttribute('data-type');
           const child = this.createBlock(type, 'auto', 'auto');
-          block.children.push(child);
+          this.canvas.addBlock(child, true);
+          block.addBlock(child, id => this.canvas.blocks[id]);
           block.element.classList.add('full');
           block.element.appendChild(child.element);
 
@@ -429,6 +434,62 @@ class Controller {
     });
     if (res.err) throw res.err;
   }
+
+  uploadProject() {
+    this.saveProject();
+    // Ensure the project is actually saved.
+    if (!this.fileSavePath) {
+      window.alert('Project cannot be compiled until it is saved.');
+    } else {
+      this.closeSerialPort(() => {
+        ipcRenderer.once('upload-complete', (event, arg) => {
+          if (arg === 0) {
+            window.alert('Upload Succeeded!');
+          } else {
+            window.alert(`Upload failed with error code: ${arg.code}\n` +
+              `\nError Message:\n\n${arg.errorBuffer || arg.outBuffer}`);
+          }
+        });
+
+        // Send the backend our file path so that
+        //   it can spawn the transpilation process.
+        ipcRenderer.send('transpile-file', {
+          filename: this.fileSavePath,
+          port: document.getElementById('serial-port').value,
+        });
+      });
+    }
+  }
+
+
+/*
+ * Serial Monitor Commands
+ */
+
+  openSerialMonitor() {
+    document.querySelector('section.full').classList.add('show');
+    this.openSerialPort();
+  }
+
+  closeSerialMonitor() {
+    document.querySelector('section.full').classList.remove('show');
+    this.closeSerialPort();
+  }
+
+  updateSerialMonitor(data) {
+    document.querySelector('section.full content').innerHTML += data.replace('\n', '<br />');
+  }
+
+  openSerialPort() {
+    ipcRenderer.send('open-serial', { port: document.getElementById('serial-port').value });
+  }
+
+  closeSerialPort(callback) {
+    // Run callback if it exists otherwise do nothing.
+    ipcRenderer.once('serial-closed', (event, arg) => (callback ? callback(arg) : undefined));
+    ipcRenderer.send('close-serial');
+  }
+
 }
 module.exports.Controller = Controller;
 

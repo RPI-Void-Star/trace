@@ -1,5 +1,6 @@
 colorama==0.3.7
 pep8==1.7.0
 py==1.4.31
+pyserial==3.2.1
 pytest==3.0.3
 simplegeneric==0.8.1
