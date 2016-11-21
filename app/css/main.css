@@ -188,6 +188,11 @@ ul li {
     padding: 5px;
     text-align: center;
 }
+.block header::after{
+    content: attr(data-count);
+    float: right;
+    color: #777;
+}
 .block.active header { cursor: move; }
 
 #arduino-image {

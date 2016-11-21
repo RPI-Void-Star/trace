@@ -219,6 +219,7 @@ class Controller {
     };
 
     block.element.addEventListener('click', selectBlock, false);
+    block.element.getElementsByTagName('header')[0].setAttribute('data-count', block.uid);
 
     // If config bar is closed open it.
     if (!this.configBarActive) { this.toggleConfigBar(); }
