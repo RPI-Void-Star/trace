@@ -32,6 +32,8 @@ class Controller {
     document.getElementById('open-project').addEventListener('click', () => this.openProject(), false);
     document.getElementById('save-project').addEventListener('click', () => this.saveProject(), false);
     document.getElementById('upload-project').addEventListener('click', () => this.uploadProject(), false);
+    document.getElementById('open-serial').addEventListener('click', () => this.openSerialMonitor(), false);
+    document.getElementById('close-serial').addEventListener('click', () => this.closeSerialMonitor(), false);
 
     // Keyboard listener
     document.body.addEventListener('keydown', (e) => {
@@ -452,6 +454,23 @@ class Controller {
         port: document.getElementById("serial-port").value
       });
     }
+  }
+
+
+/*
+ * Serial Monitor Commands
+ */ 
+
+  openSerialMonitor() {
+    document.querySelector("section.full").classList.add("show")
+  }
+
+  closeSerialMonitor() {
+    document.querySelector("section.full").classList.remove("show")
+  }
+
+  updateSerialMonitor(data){
+    document.querySelector("section.full content").innerHTML += data.replace("\n", "<br />")
   }
 
 }
