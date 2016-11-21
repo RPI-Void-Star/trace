@@ -111,6 +111,7 @@ class Block {
     if (new.target === Block) {
       throw new TypeError('Cannot construct Block instances directly');
     }
+    this.shouldConnect = true;
     this.uid = Block.uid++;
     this.next = null;
     this.element = TemplateBlock.dragged.cloneNode(true);
@@ -278,6 +279,7 @@ class ConditionalBlock extends Block {
     this.condition = null;
     this.onTrue = null;
     this.onFalse = null;
+    this.shouldConnect = false;
   }
 
   /**

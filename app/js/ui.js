@@ -35,30 +35,34 @@ class Controller {
     // Keyboard listener
     document.body.addEventListener('keydown', (e) => {
       switch (e.keyCode) {
-            // When the user pressed delete
+        // When the user pressed delete
         case 8:
         case 127:
           this.deleteBlock();
+          document.getElementById('config-bar').getElementsByTagName('content')[0].innerHTML = '';
           break;
 
-            // When the user presses 'c'
+        // When the user presses 'c'
         case 67:
-                // Only allow moving if we are not dragging the block.
-          if (this.moveListener === undefined) {
+          // Only allow moving if we are not dragging the block.
+          if (this.moveListener === undefined && this.activeBlock.shouldConnect) {
             this.enableConnection();
           }
           break;
 
-            // When the user presses 'd'
+        // When the user presses 'd'
         case 68:
-                // If we aren't moving and aren't drawing an arrow
-                //   clear the arrow connections
+          // If we aren't moving and aren't drawing an arrow
+          //   clear the arrow connections
           if (this.moveListener === undefined && this.connectionListener === undefined) {
             if (this.activeBlock) {
               this.activeBlock.next = undefined;
               this.canvas.redraw();
             }
           }
+          break;
+
+        default:
           break;
       }
     });
@@ -201,8 +205,12 @@ class Controller {
         const input = document.createElement('input');
         input.setAttribute('id', id);
         input.setAttribute('value', params[key] || '');
+        input.addEventListener('keydown', (event) => {
+          event.stopPropagation();
+        });
         input.addEventListener('change', () => {
           this.activeBlock.setParam(key, input.value);
+          this.canvas.redraw();
         });
         container.appendChild(label);
         container.appendChild(input);
@@ -285,8 +293,8 @@ class Controller {
       // Since the block bounds doesn't change we don't need to worry about that here.
       const blockBounds = this.activeBlock.element.getBoundingClientRect();
       const startPos = {
-        x: this.activeBlock.loc.x + blockBounds.width / 2,
-        y: this.activeBlock.loc.y + blockBounds.height / 2,
+        x: this.activeBlock.loc.x + (blockBounds.width / 2),
+        y: this.activeBlock.loc.y + (blockBounds.height / 2),
       };
       const startBlock = this.activeBlock;
 
@@ -301,7 +309,7 @@ class Controller {
             this.pendingFrame = true;
             this.canvas.redraw();
             // Use animation frame to increase performance of redraw.
-            window.requestAnimationFrame((_) => {
+            window.requestAnimationFrame(() => {
               if (this.pendingFrame) {
                 this.canvas.drawArrow(
                     startPos,
@@ -311,16 +319,14 @@ class Controller {
               }
             });
           }
-        }
-
-        // We released the mouse button.
-        else {
-            // Prevent nasty timing bug from drawing double arrows.
+        } else {
+          // We released the mouse button.
+          //   Prevent nasty timing bug from drawing double arrows.
           this.pendingFrame = false;
-            // If we let go of the mouse over another block establish a connection.
+          // If we let go of the mouse over another block establish a connection.
           if (e.target.classList.contains('block') && !e.target.classList.contains('template')) {
             const targetBlock = this.canvas.getBlockForElement(e.target);
-                // Don't allow connections to the start block.
+            // Don't allow connections to ourselves.
             if (targetBlock !== startBlock && startBlock) {
               startBlock.next = targetBlock.uid;
             }
@@ -368,14 +374,14 @@ class Controller {
 
   setProjectJSON(json) {
     const newChart = JSON.parse(json);
-    for (const key in newChart.blocks) {
+    Object.keys(newChart.blocks).forEach((key) => {
       const block = newChart.blocks[key];
       const template = document.querySelector(`.template[data-type="${block.type}"`);
       blocks.TemplateBlock.dragged = template;
       const newBlock = this.createBlock(block.type, block.loc.x, block.loc.y);
       newBlock.attributes = block.attributes;
       newBlock.next = block.next;
-    }
+    });
   }
 
   openProject() {
