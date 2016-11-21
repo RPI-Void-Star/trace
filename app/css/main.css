@@ -38,8 +38,21 @@ body > header > * {
     padding: 5px;
     cursor: pointer;
     vertical-align: middle;
+    transition: background-color .5s;
 }
 body > header > *:first-of-type {
+    background-color: #383F5A;
+}
+body > header > *:last-of-type {
+    float: right;
+    padding-right: 1em;
+    padding-left: 1em;
+}
+body > header > *:nth-last-of-type(2) {
+    float: right;
+    padding-right: 1em;
+}
+body > header > *:hover{
     background-color: #383F5A;
 }
 
