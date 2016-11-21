@@ -115,6 +115,18 @@ class Controller {
       case 'variable':
         block = new blocks.VariableBlock(x, y);
         break;
+      case 'pin_write':
+        block = new blocks.PinWriteBlock(x, y);
+        break;
+      case 'pin_read':
+        block = new blocks.PinReadBlock(x, y);
+        break;
+      case 'code':
+        block = new blocks.CodeBlock(x, y);
+        break;
+      case 'sleep':
+        block = new blocks.SleepBlock(x, y);
+        break;
       default:
         throw new TypeError(`Unrecognized block type: ${JSON.stringify(blockType)}`);
     }
@@ -293,6 +305,7 @@ class Controller {
     if (res.err) throw res.err;
   }
 }
+module.exports.Controller = Controller;
 
 window.controller = new Controller();
 window.controller.initCanvas();
