@@ -26,7 +26,8 @@ class ArduinoConverter(Converter):
 
     def convert(self, startBlock):
 
-        program = ''
+        program  = '#include <Arduino.h>\n'
+        program += 'int foo = 0;\n'
         program += parse(startBlock, '')
 
         f = open(self._outputFile, 'w')
@@ -46,13 +47,11 @@ def parseBlock(block, space):
 
 @parse.when_type(StartBlock)
 def parseStartBlock(block, space):
-    return (space + 'int main()\n' +
+    return (space + 'void setup() {{ pinMode(12, OUTPUT); }}\n' +
+            space + 'void loop()\n' +
             space + '{{\n' +
-            space + '  while (1)\n' +
-            space + '  {{\n' +
             '{0}\n' +
-            space + '  }}\n' +
-            space + '}}\n').format(parse(block.next, space + '    '))
+            space + '}}\n').format(parse(block.next, space + '  '))
 
 
 @parse.when_type(LoopBlock)
@@ -69,16 +68,30 @@ def parseLoopBlock(block, space):
 def parseConditionalBlock(block, space):
     return (space + 'if ({0})\n' +
             space + '{{\n' +
-            '{1}\n' +
+            '{1}' +
             space + '}}\n' +
             space + 'else\n' +
             space + '{{\n' +
-            '{2}\n' +
+            '{2}' +
             space + '}}').format(
                 block.condition,
                 parse(block.ifTrue, space + '  '),
                 parse(block.ifFalse, space + '  ')) + parse(block.next, space + '  ')
 
+@parse.when_type(WriteBlock)
+def parseWriteBlock(block, space):
+    return (space + 'digitalWrite({0},{1});\n' +
+                    '{2}').format(block.pin, block.value, parse(block.next, space))
+
+@parse.when_type(ReadBlock)
+def parseReadBlock(block, space):
+    return (space + '{1} = digitalRead({0});\n' +
+                    '{2}').format(block.pin, block.var, parse(block.next, space))
+
+@parse.when_type(SleepBlock)
+def parseSleepBlock(block, space):
+    return (space + 'delay({0});\n' +
+                    '{1}').format(block.length, parse(block.next, space))
 
 if __name__ == "__main__":
     print("WARNING: This file is not meant to stand alone. Run main.py instead.")
