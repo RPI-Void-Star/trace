@@ -31,6 +31,41 @@ class Controller {
     document.getElementById('new-project').addEventListener('click', () => this.newProject(), false);
     document.getElementById('open-project').addEventListener('click', () => this.openProject(), false);
     document.getElementById('save-project').addEventListener('click', () => this.saveProject(), false);
+
+    // Keyboard listener
+    document.body.addEventListener('keydown', (e) => {
+      switch (e.keyCode) {
+        // When the user pressed delete
+        case 8:
+        case 127:
+          this.deleteBlock();
+          document.getElementById('config-bar').getElementsByTagName('content')[0].innerHTML = '';
+          break;
+
+        // When the user presses 'c'
+        case 67:
+          // Only allow moving if we are not dragging the block.
+          if (this.moveListener === undefined && this.activeBlock.shouldConnect) {
+            this.enableConnection();
+          }
+          break;
+
+        // When the user presses 'd'
+        case 68:
+          // If we aren't moving and aren't drawing an arrow
+          //   clear the arrow connections
+          if (this.moveListener === undefined && this.connectionListener === undefined) {
+            if (this.activeBlock) {
+              this.activeBlock.next = undefined;
+              this.canvas.redraw();
+            }
+          }
+          break;
+
+        default:
+          break;
+      }
+    });
   }
 
   initCanvas() {
@@ -107,7 +142,6 @@ class Controller {
           return false;
         }, false);
 
-
         break;
       case 'conditional':
         block = new blocks.ConditionalBlock(x, y);
@@ -171,8 +205,12 @@ class Controller {
         const input = document.createElement('input');
         input.setAttribute('id', id);
         input.setAttribute('value', params[key] || '');
+        input.addEventListener('keydown', (event) => {
+          event.stopPropagation();
+        });
         input.addEventListener('change', () => {
           this.activeBlock.setParam(key, input.value);
+          this.canvas.redraw();
         });
         container.appendChild(label);
         container.appendChild(input);
@@ -181,12 +219,23 @@ class Controller {
     };
 
     block.element.addEventListener('click', selectBlock, false);
+    block.element.getElementsByTagName('header')[0].setAttribute('data-count', block.uid);
 
     // If config bar is closed open it.
     if (!this.configBarActive) { this.toggleConfigBar(); }
     selectBlock();
     return block;
   }
+
+  // If the active block is not the start block tell the canvas
+  //   to delete it
+  deleteBlock() {
+    if (this.activeBlock && this.activeBlock.uid !== 0) {
+      this.canvas.removeBlock(this.activeBlock);
+      this.canvas.redraw();
+    }
+  }
+
 
   toggleConfigBar() {
     this.configBarActive = !this.configBarActive;
@@ -213,6 +262,7 @@ class Controller {
       this.moveListener = (e) => {
         if (e.buttons === 1) this.activeBlock.updatePosition(newX(e), newY(e));
         else this.disableMoving();
+        this.canvas.redraw();
       };
 
       document.getElementById('chart-container').addEventListener('mousemove', this.moveListener);
@@ -230,18 +280,91 @@ class Controller {
   }
 
 /*
+ * Block Connections
+ */
+
+  enableConnection() {
+    // Don't allow another listener to be added if block is already moving.
+    if (!this.connectionListener && this.activeBlock) {
+      // Although nasty it is important to leave these as funcitons so they
+      //   update when the mouse moves this allows tracking even when the
+      //   user scrolls, otherwise we take a snapshot of the offsets with
+      //   the current scroll bounds which leads to incorrect movement.
+      const cvs = this.canvas.element;
+      // Since the block bounds doesn't change we don't need to worry about that here.
+      const blockBounds = this.activeBlock.element.getBoundingClientRect();
+      const startPos = {
+        x: this.activeBlock.loc.x + (blockBounds.width / 2),
+        y: this.activeBlock.loc.y + (blockBounds.height / 2),
+      };
+      const startBlock = this.activeBlock;
+
+      const endX = e => e.pageX - cvs.getBoundingClientRect().left;
+      const endY = e => e.pageY - cvs.getBoundingClientRect().top;
+
+      this.connectionListener = (e) => {
+        // If we are holding the mouse button draw the arrow.
+        if (e.buttons === 1) {
+          // Make sure we don't redraw the same frame twice.
+          if (!this.pendingFrame) {
+            this.pendingFrame = true;
+            this.canvas.redraw();
+            // Use animation frame to increase performance of redraw.
+            window.requestAnimationFrame(() => {
+              if (this.pendingFrame) {
+                this.canvas.drawArrow(
+                    startPos,
+                    { x: endX(e), y: endY(e) }
+                );
+                this.pendingFrame = false;
+              }
+            });
+          }
+        } else {
+          // We released the mouse button.
+          //   Prevent nasty timing bug from drawing double arrows.
+          this.pendingFrame = false;
+          // If we let go of the mouse over another block establish a connection.
+          if (e.target.classList.contains('block') && !e.target.classList.contains('template')) {
+            const targetBlock = this.canvas.getBlockForElement(e.target);
+            // Don't allow connections to ourselves.
+            if (targetBlock !== startBlock && startBlock) {
+              startBlock.next = targetBlock.uid;
+            }
+            this.disableConnection();
+          }
+          this.canvas.redraw();
+        }
+      };
+
+      document.getElementById('chart-container').addEventListener('mousemove', this.connectionListener);
+      document.getElementById('chart-container').addEventListener('mouseup', this.connectionListener);
+    } else {
+      console.log(`Attempted to connect block that was already being connected, or when one wasn't selected: ${
+        JSON.stringify(this)}`);
+    }
+  }
+
+  disableConnection() {
+    document.getElementById('chart-container').removeEventListener('mousemove', this.connectionListener);
+    document.getElementById('chart-container').removeEventListener('mouseup', this.connectionListener);
+    this.connectionListener = undefined;
+  }
+
+
+/*
  * Project Management
  */
 
   newProject() {
-    if (this.canvas.blocks.length === 0 || window.confirm('Make a new project?\nYou will lose any unsaved work.')) {
+    if (Object.keys(this.canvas.blocks).length === 0 || window.confirm('Make a new project?\nYou will lose any unsaved work.')) {
       this.canvas.clear();
       this.fileSavePath = undefined;
       const bounds = this.canvas.element.parentNode.getBoundingClientRect();
       this.setProjectJSON(`{
-        "blocks": [
-            { "type": "start", "loc": { "x": ${(bounds.width / 2) - 100}, "y": ${(bounds.height / 2) - 40} } }
-      ]}`);
+        "blocks": {
+            "0": { "type": "start", "loc": { "x": ${(bounds.width / 2) - 100}, "y": ${(bounds.height / 2) - 40} } }
+      }}`);
       this.toggleConfigBar();
     }
   }
@@ -252,12 +375,13 @@ class Controller {
 
   setProjectJSON(json) {
     const newChart = JSON.parse(json);
-    newChart.blocks.forEach((block) => {
+    Object.keys(newChart.blocks).forEach((key) => {
+      const block = newChart.blocks[key];
       const template = document.querySelector(`.template[data-type="${block.type}"`);
+      blocks.Block.uid = key;
       blocks.TemplateBlock.dragged = template;
       const newBlock = this.createBlock(block.type, block.loc.x, block.loc.y);
-      newBlock.attributes = block.attributes;
-      newBlock.next = block.next;
+      newBlock.fromJSON(block);
     });
   }
 
@@ -278,6 +402,7 @@ class Controller {
         // Redraw the canvas
         this.canvas.clear();
         this.setProjectJSON(rawjson);
+        this.canvas.redraw();
       } else throw res.err;
     }
   }
