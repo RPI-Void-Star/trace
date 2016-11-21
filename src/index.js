@@ -74,7 +74,7 @@ electron.ipcMain.on('open-serial', (event, arg) => {
 
   serialProcess.stdout.on('data', (data) => {
     console.log(`stdout: ${data}`);
-    event.sender.send('serial-data', data);
+    event.sender.send('serial-data', `${data}`);
   });
 
   serialProcess.stderr.on('data', (data) => {
