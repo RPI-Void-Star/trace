@@ -16,6 +16,7 @@ class Canvas {
     this.redraw();
   }
 
+  // Draw the square grid on the canvas.
   drawGrid() {
     const bounds = this.element.getBoundingClientRect();
     this.w = bounds.width;
@@ -26,6 +27,7 @@ class Canvas {
     this.drawLines(this.w / 50);
   }
 
+  // Draws lines on the canvas element.
   drawLines(numLines, color, width) {
     const ctx = this.element.getContext('2d');
     ctx.beginPath();
@@ -49,8 +51,10 @@ class Canvas {
     ctx.stroke();
   }
 
-  // Function from: http://stackoverflow.com/questions/808826/draw-arrow-on-canvas-tag#6333775
+  // Function originally from: http://stackoverflow.com/questions/808826/draw-arrow-on-canvas-tag#6333775
   // Author: SteampunkWizard
+  //
+  // Code modified to move arrow heads to halfway-point.
   drawArrow(startCoords, endCoords, color) {
     const { x: startx, y: starty } = startCoords;
     const { x: endx, y: endy } = endCoords;
@@ -133,7 +137,6 @@ class Canvas {
     });
   }
 
-
   // Clear drawings from canvas
   clearCanvas() {
     const ctx = this.element.getContext('2d');
@@ -166,6 +169,8 @@ class Canvas {
         }
       }
 
+      // Check in conditionals and loops for nested links to the block
+      //   that is being deleted.
       if (this.blocks[key].type === 'conditional') {
         if (this.blocks[key].onTrue === block.uid) { this.blocks[key].onTrue = undefined; }
         if (this.blocks[key].onFalse === block.uid) { this.blocks[key].onFalse = undefined; }
@@ -185,6 +190,7 @@ class Canvas {
     this.redraw();
   }
 
+  // Returns the block for the given html element.
   getBlockForElement(elm) {
     let returnvalue;
     Object.keys(this.blocks).forEach((key) => {
@@ -195,6 +201,7 @@ class Canvas {
     return returnvalue;
   }
 
+  // Removes highlighting from a block.
   clearBlockHighlight() {
     Object.keys(this.blocks).forEach((key) => {
       const block = this.blocks[key];
@@ -202,6 +209,7 @@ class Canvas {
     });
   }
 
+  // Clears the canvas.
   clear() {
     Object.keys(this.blocks).forEach((key) => {
       const block = this.blocks[key];
