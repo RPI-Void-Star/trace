@@ -49,7 +49,7 @@ class Controller {
 
         // When the user presses 'c'
         case 67:
-          // Only allow moving if we are not dragging the block.
+          // Only allow connecting if we are not dragging the block.
           if (this.moveListener === undefined && this.activeBlock.shouldConnect) {
             this.enableConnection();
           }
@@ -91,6 +91,7 @@ class Controller {
       return false;
     }, false);
 
+    // Prevent other events from interfering with the drag-over.
     this.canvas.container.addEventListener('dragover', (event) => {
       event.preventDefault();
       event.stopPropagation();
@@ -378,23 +379,25 @@ class Controller {
     return JSON.stringify(this.canvas);
   }
 
+  // Load JSON representation into the interface.
   setProjectJSON(json) {
     const newChart = JSON.parse(json);
     const loopBlocks = {};
     Object.keys(newChart.blocks).forEach((key) => {
+      const block = newChart.blocks[key];
+      const template = document.querySelector(`.template[data-type="${block.type}"`);
+      blocks.Block.uid = key;
+      blocks.TemplateBlock.dragged = template;
+
+      // Check if the block should be drawn in a loop
+      //   and append the block to the proper location.
       if (loopBlocks[key] === undefined) {
-        const block = newChart.blocks[key];
-        const template = document.querySelector(`.template[data-type="${block.type}"`);
-        blocks.Block.uid = key;
-        blocks.TemplateBlock.dragged = template;
         const newBlock = this.createBlock(block.type, block.loc.x, block.loc.y);
         newBlock.fromJSON(block);
         if (newBlock.type === 'loop') {
           newBlock.children.forEach((child) => { loopBlocks[child] = newBlock.uid; });
         }
       } else {
-        const block = newChart.blocks[key];
-        blocks.Block.uid = key;
         const child = this.createBlock(block.type, 'auto', 'auto');
         child.fromJSON(block);
         const par = this.canvas.blocks[loopBlocks[key]];
@@ -458,7 +461,7 @@ class Controller {
     } else {
       this.closeSerialPort(() => {
         ipcRenderer.once('upload-complete', (event, arg) => {
-          if (arg === 0) {
+          if (arg.code === 0) {
             window.alert('Upload Succeeded!');
           } else {
             window.alert(`Upload failed with error code: ${arg.code}\n` +
@@ -481,20 +484,24 @@ class Controller {
  * Serial Monitor Commands
  */
 
+  // Open serial monitor panel and initialize serial port.
   openSerialMonitor() {
     document.querySelector('section.full').classList.add('show');
     this.openSerialPort();
   }
 
+  // Closes the serial monitor to prevent conflicts with programming.
   closeSerialMonitor() {
     document.querySelector('section.full').classList.remove('show');
     this.closeSerialPort();
   }
 
+  // Add data to serial monitor.
   updateSerialMonitor(data) {
     document.querySelector('section.full content').innerHTML += data.replace('\n', '<br />');
   }
 
+  // Instructs backend to open serial port and begin streaming data.
   openSerialPort() {
     ipcRenderer.send('open-serial', { port: document.getElementById('serial-port').value });
   }
