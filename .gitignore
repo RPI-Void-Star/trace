@@ -36,6 +36,10 @@ Thumbs.db
 /app/index.js
 /app/env.json
 /app/**/*.map
+/app/transpile
+
+# build directories
+/Trace-*
 
 /dist
 

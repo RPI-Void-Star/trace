@@ -10,11 +10,12 @@ const utils = require('./utils');
 const srcDir = jetpack.cwd('./src');
 const destDir = jetpack.cwd('./app');
 
-gulp.task('bundle', () =>
+gulp.task('bundle', () => {
+  gulp.src('./transpile/**/*').pipe(gulp.dest('./app/transpile'));
   Promise.all([
     bundle(srcDir.path('index.js'), destDir.path('index.js')),
-  ])
-);
+  ]);
+});
 
 gulp.task('less', () =>
   gulp.src(srcDir.path('stylesheets/main.less'))

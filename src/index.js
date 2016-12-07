@@ -1,6 +1,7 @@
 const electron = require('electron');
 const fs = require('fs');
 const spawn = require('child_process').spawn;
+const isDev = require('electron-is-dev');
 
 let mainWindow = null;
 
@@ -40,7 +41,14 @@ electron.ipcMain.on('load-file', (event, arg) => {
 });
 
 electron.ipcMain.on('transpile-file', (event, arg) => {
-  const transpiler = spawn('python', ['transpile/main.py', arg.filename, arg.port]);
+  let path;
+  if (isDev) {
+    path = 'transpile/main.py';
+  } else {
+    path = 'resources/app/transpile/main.py';
+  }
+
+  const transpiler = spawn('python', [path, arg.filename, arg.port]);
   let errorBuffer = '';
   let outBuffer = '';
 
@@ -68,9 +76,15 @@ electron.ipcMain.on('transpile-file', (event, arg) => {
 
 let serialProcess;
 electron.ipcMain.on('open-serial', (event, arg) => {
-  let errorBuffer = '';
+  let path;
+  if (isDev) {
+    path = 'transpile/com_test.py';
+  } else {
+    path = 'resources/app/transpile/com_test.py';
+  }
 
-  serialProcess = spawn('python', ['transpile/com_test.py', arg.port]);
+  serialProcess = spawn('python', [path, arg.port]);
+  let errorBuffer = '';
 
   serialProcess.stdout.on('data', (data) => {
     console.log(`stdout: ${data}`);
