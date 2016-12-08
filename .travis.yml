@@ -10,18 +10,20 @@ addons:
   apt:
     packages:
       - xvfb
-      - python3-serial
 
 before_install:
+  - sudo apt-get remove python-serial
   - rm -rf ~/.nvm
   - git clone https://github.com/creationix/nvm.git ~/.nvm
   - source ~/.nvm/nvm.sh
+  - python --version
   - nvm install $NODE_VERSION
 
 install:
   - export DISPLAY=':99.0'
   - Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
   - sudo pip install -r requirements.txt
+  - python -m pip install pyserial
 
 before_script:
   - npm install
